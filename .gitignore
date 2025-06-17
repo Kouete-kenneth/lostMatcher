@@ -1,0 +1,13 @@
+# Ignore node_modules and build artifacts
+
+lostmatcher-server-1/node_modules
+lostmatcher-server-1/dist
+# Ignore environment files
+lostmatcher-server-1/.env
+# Ignore logs
+lostmatcher-server-1/logs
+# Ignore coverage reports
+lostmatcher-server-1/coverage
+# Ignore IDE specific files
+lostmatcher-server-1/.vscode
+# Ignore temporary files

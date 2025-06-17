@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "FindIt",
+    "scheme": "Findit",
+    "slug": "findit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets//images/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "package":"com.findit"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets//images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package":"com.findit"
+    },
+    "web": {
+      "favicon": "./assets//images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your Galarie to allow you select an image."
+        }
+      ]
+    ]
+  }
+}
+

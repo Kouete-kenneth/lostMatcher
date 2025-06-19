@@ -13,6 +13,7 @@ import { successHandler, errorHandler } from './config/morgan';
 import authLimiter from './middlewares/authLimiter';
 import logger from './config/logging.config';
 import ApiError from './utils/ApiError';
+import Routes from './routes';
 // import sessionMiddleware from './middlewares/session.middleware';
 
 const app = express();
@@ -66,7 +67,7 @@ if (config.env === 'production') {
     app.use('/api-v1/auth', authLimiter);
 }
 
-// app.use('/api-v1', routes); // Add routes back when ready
+app.use('/api-v1', Routes); 
 
 // 404 handler (Express 5 supports res.notFound())
 app.use((req, res, next) => {

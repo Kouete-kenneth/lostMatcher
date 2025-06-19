@@ -2,10 +2,11 @@
   "name": "lostmatcher-server-1",
   "version": "1.0.0",
   "description": "Backend for lostmatcher application",
-  "main": "server.js",
+  "main": "server.ts",
   "scripts": {
     "test": "npm test",
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon src/server.ts",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/Kouete-kenneth/lostMatcher#readme",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.8.1",
     "@types/connect-mongodb-session": "^2.4.8",
     "@types/cors": "^2.8.19",
@@ -35,15 +37,20 @@
     "@types/helmet": "^0.0.48",
     "@types/http-status": "^0.2.30",
     "@types/joi": "^17.2.2",
+    "@types/moment": "^2.11.29",
     "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.0.3",
+    "@types/nodemailer": "^6.4.17",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/socket.io": "^3.0.1",
+    "@types/string-similarity": "^4.0.2",
+    "@types/validator": "^13.15.2",
     "ts-node": "^10.9.2"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -53,9 +60,13 @@
     "helmet": "^8.1.0",
     "http-status": "^2.1.0",
     "joi": "^17.13.3",
+    "moment": "^2.30.1",
     "mongoose": "^8.16.0",
     "morgan": "^1.10.0",
+    "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "string-similarity": "^4.0.4",
+    "validator": "^13.15.15"
   }
 }

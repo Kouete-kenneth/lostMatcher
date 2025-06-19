@@ -1,7 +1,7 @@
 import Joi, { SchemaMap } from 'joi';
 import httpStatus from 'http-status';
 import pick from '../utils/pick';
-import ApiError from '../utils/ApiError.js';
+import ApiError from '../utils/ApiError';
 import { Request, Response, NextFunction } from 'express';
 
 // Extend the Request type to define the properties that will be picked

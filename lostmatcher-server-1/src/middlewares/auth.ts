@@ -1,7 +1,7 @@
 import passport from 'passport';
 import httpStatus from 'http-status';
-import ApiError from '../utils/ApiError.js';
-import { roleRights } from '../config/roles.config.js';
+import ApiError from '../utils/ApiError';
+import { roleRights } from '../config/roles.config';
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 

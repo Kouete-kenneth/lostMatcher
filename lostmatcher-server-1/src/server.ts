@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 import app from './app';
 import config from './config/env.config';
 import logger from './config/logging.config';
-import { socketService } from './services/socket.services.js';
+// import { socketService } from './services/socket.services.js';
 
 let httpServer: ReturnType<typeof createServer>;
 
@@ -35,7 +35,7 @@ const setupServer = async () => {
         });
 
         // Initialize socket service
-        socketService.initialize(io);
+        // socketService.initialize(io);
 
         // Start the HTTP server
         httpServer.listen(config.port, () => {
@@ -93,10 +93,10 @@ process.on('SIGTERM', () => {
 
 // Export socket service functions for use in other parts of the application
 // TODO: Remove this: and use socketService directly by importing it from /services/socket.service.js
-export const emitNotification = socketService.emitNotification.bind(socketService);
+// export const emitNotification = socketService.emitNotification.bind(socketService);
 // export const broadcastReactionUpdate = socketService.broadcastReactionUpdate.bind(socketService);
 // export const broadcastCommentUpdate = socketService.broadcastCommentUpdate.bind(socketService);
-export const broadcastFollowUpdate = socketService.broadcastFollowUpdate.bind(socketService);
+// export const broadcastFollowUpdate = socketService.broadcastFollowUpdate.bind(socketService);
 
 // Initialize the server
 startServer();

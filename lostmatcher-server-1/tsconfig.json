@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
-    
-    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "commonjs",                                /* Specify what module code is generated. */
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
-    /* Type Checking */
-    "strict": true,                                      /* Enable all strict type-checking options. */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+    "target": "es2016",
+    "module": "commonjs",
+    "moduleResolution": "node",                  // Add this for correct module lookup
+    "esModuleInterop": true,
+    "resolveJsonModule": true,                   // If you're importing .json files (common in config)
+    "outDir": "./build",                          // Helps organize compiled output
+    "rootDir": "./src",                          // Makes TypeScript treat only ./src as the source
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"],                            // Only include source folder
+  "exclude": ["node_modules", "dist", "build"]            // Avoid compiling unnecessary files
 }

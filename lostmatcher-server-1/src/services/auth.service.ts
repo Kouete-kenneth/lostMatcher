@@ -52,20 +52,16 @@ const logout = async (refreshToken: string): Promise<void> => {
 const refreshAuth = async (
   refreshToken: string
 ): Promise<ReturnType<typeof tokenService.generateAuthTokens>> => {
-  try {
     const refreshTokenDoc = await tokenService.verifyToken(
       refreshToken,
       tokenTypes.REFRESH
     ) as IToken;
     const user = await userService.getUserById(refreshTokenDoc.user.toString());
     if (!user) {
-      throw new Error();
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
-    await (refreshTokenDoc as any).remove();
+    await Token.deleteOne({ _id: refreshTokenDoc._id });
     return tokenService.generateAuthTokens(user);
-  } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
-  }
 };
 
 /**
@@ -143,20 +139,9 @@ const getUserIdFromToken = async (
   token: string,
   tokenType: string
 ): Promise<string> => {
-  try {
     const tokenDoc = await tokenService.verifyToken(token, tokenType) as IToken;
     const userId = tokenDoc.user;
     return userId.toString();
-  } catch (error: any) {
-    console.error(`Error verifying ${tokenType} token:`, error);
-    if (error instanceof jwt.TokenExpiredError) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'Token expired');
-    } else if (error instanceof jwt.JsonWebTokenError) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token');
-    } else {
-      throw new Error(error);
-    }
-  }
 };
 
 export {

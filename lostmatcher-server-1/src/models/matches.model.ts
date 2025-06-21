@@ -4,7 +4,7 @@ export interface IMatch extends Document {
     lostItemId: mongoose.Types.ObjectId;
     foundItemId: mongoose.Types.ObjectId;
     matchScore: number;
-    status: 'pending claim' | 'claim approved' | 'further verification required';
+    status: 'pending_claim' | 'claim_approved' | 'under_approval';
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -27,8 +27,8 @@ const matchSchema: Schema<IMatch> = new Schema(
         },
         status: {
             type: String,
-            enum: ['pending claim', 'claim approved', 'further verification required'],
-            default: 'pending claim',
+            enum: ['pending_claim', 'claim_approved', 'under_approval'],
+            default: 'pending_claim',
         },
     },
     {

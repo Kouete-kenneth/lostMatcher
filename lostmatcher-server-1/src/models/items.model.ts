@@ -13,8 +13,9 @@ export interface IItem extends Document {
   missingLocation: string;
   currentLocation?: ICurrentLocation;
   contactPersonContact: string;
-  status: 'no match' | 'pending claim' | 'claim approved' | 'further verification required';
+  status: 'no_match' | 'pending_claim' | 'claim_approved' | 'under_approval';
   type: 'lost' | 'found';
+  descriptors: number[];
   date: Date;
   userId?: string;
   createdAt?: Date;
@@ -40,15 +41,16 @@ const ItemSchema: Schema = new Schema(
     contactPersonContact: { type: String, required: true },
     status: {
       type: String,
-      enum: ['no match', 'pending claim', 'claim approved', 'further verification required'],
+      enum: ['no_match', 'pending_claim', 'claim_approved', 'under_approval'],
       required: true,
-      default: 'no match',
+      default: 'no_match',
     },
     type: { type: String, enum: ['lost', 'found'], required: true },
     date: { type: Date, required: true },
-    userId: { type: String },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    descriptors: { type: [[Number]], required: true }, // 2D array of numbers
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model<IItem>('Item', ItemSchema);

@@ -1,20 +1,23 @@
-import Joi, { SchemaMap } from 'joi';
+import Joi, { ObjectSchema } from 'joi';
 import httpStatus from 'http-status';
 import pick from '../utils/pick';
 import ApiError from '../utils/ApiError';
-import { Request, Response, NextFunction } from 'express';
+import { Request, NextFunction } from 'express';
 
-// Extend the Request type to define the properties that will be picked
-interface ValidatedRequest extends Request {
-    body: any;
-    query: any;
-    params: any;
+// No need to extend the Request type; use the standard Request type from Express
+
+interface SchemaContainer {
+    params?: ObjectSchema;
+    query?: ObjectSchema;
+    body?: ObjectSchema;
 }
 
-const validate = (schema: { params?: SchemaMap; query?: SchemaMap; body?: SchemaMap }) => {
-    return (req: ValidatedRequest, res: Response, next: NextFunction) => {
+import { Response } from 'express';
+
+const validate = (schema: SchemaContainer) => {
+    return (req: Request, _res: Response, next: NextFunction) => {
         const validSchema = pick(schema, ['params', 'query', 'body']);
-        const object = pick(req, Object.keys(validSchema) as (keyof ValidatedRequest)[]);
+        const object = pick(req, Object.keys(validSchema) as (keyof Request)[]);
         const { value, error } = Joi.compile(validSchema)
             .prefs({ errors: { label: 'key' }, abortEarly: false })
             .validate(object);
@@ -30,3 +33,4 @@ const validate = (schema: { params?: SchemaMap; query?: SchemaMap; body?: Schema
 };
 
 export default validate;
+

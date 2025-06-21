@@ -5,15 +5,15 @@ import validate from '../middlewares/validate';
 const notificationRoutes = express.Router();
 
 // Route to create a new notification
-notificationRoutes.post('/', validate({ body: notificationValidation.createNotification }), addNotification);
+notificationRoutes.post('/', validate(notificationValidation.createNotification), addNotification);
 
 // Route to fetch all notifications for a user
-notificationRoutes.get('/:userId', validate({ params: notificationValidation.getAllNotifications }), getNotifications);
+notificationRoutes.get('/:userId', validate(notificationValidation.getAllNotifications), getNotifications);
 
 // Route to update a notifications
-notificationRoutes.put('/:notificationId', updateNotification);
+notificationRoutes.put('/:notificationId', validate(notificationValidation.updateNotification), updateNotification);
 
 // Route to delete a notification
-notificationRoutes.delete('/:notificationId', validate({ params: notificationValidation.deleteNotification }), removeNotification);
+notificationRoutes.delete('/:notificationId', validate(notificationValidation.deleteNotification), removeNotification);
 
 export default notificationRoutes;

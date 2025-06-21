@@ -2,12 +2,10 @@ import Joi from 'joi';
 import { password } from './custom.validation';
 
 const register = {
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().custom(password),
-    name: Joi.string().required(),
-    phone:Joi.string(),
-
+  body: Joi.object({
+      name: Joi.string().required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(6).required(),
   }),
 };
 
@@ -41,7 +39,11 @@ const resetPassword = {
     token: Joi.string().required(),
   }),
   body: Joi.object().keys({
-    password: Joi.string().required().custom(password),
+    password: Joi.string().required().custom(password, 'Password validation').messages({
+      'any.required': 'Password is required',
+      'string.empty': 'Password cannot be empty',
+      'custom': 'Password does not meet requirements'
+    }),
     email:Joi.string().required(),
   }),
 };

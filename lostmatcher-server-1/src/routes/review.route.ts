@@ -5,11 +5,11 @@ import {createReviewValidation,deleteReviewValidation} from '../validations/revi
 
 const reviewRoutes = express.Router();
 
-reviewRoutes.post('/create', validate({ body: createReviewValidation }), reviewController.createReview);
+reviewRoutes.post('/create', validate(createReviewValidation), reviewController.createReview);
 reviewRoutes.get('/all', reviewController.getAllReviews);
 reviewRoutes.get('/id/:id', reviewController.getReviewByUserID);
 reviewRoutes.get('/rating/:rating', reviewController.getReviewByRating);
 reviewRoutes.get('/date/:date', reviewController.getReviewByDateAdded);
-reviewRoutes.delete('/delete/:id', validate({ params: deleteReviewValidation }), reviewController.deleteReview);
+reviewRoutes.delete('/delete/:id', validate(deleteReviewValidation), reviewController.deleteReview);
 
 export default reviewRoutes;

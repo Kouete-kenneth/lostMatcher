@@ -6,14 +6,14 @@ import { auth } from '../middlewares/auth';
 
 const AuthRoutes = express.Router();
 
-AuthRoutes.post('/register', validate({ body: registerValidation }), register);
-AuthRoutes.post('/login', validate({ body: loginValidation }), login);
-AuthRoutes.post('/logout', validate({ body: logoutValidation }), logout);
-AuthRoutes.post('/refresh-tokens', validate({ body: refreshTokensValidation }), refreshTokens);
-AuthRoutes.post('/forgot-password', validate({ body: forgotPasswordValidation }), forgotPassword);
-AuthRoutes.post('/reset-password', validate({ body: resetPasswordValidation }), resetPassword);
+AuthRoutes.post('/register', validate(registerValidation), register);
+AuthRoutes.post('/login', validate(loginValidation), login);
+AuthRoutes.post('/logout', validate(logoutValidation), logout);
+AuthRoutes.post('/refresh-tokens', auth(), validate(refreshTokensValidation), refreshTokens);
+AuthRoutes.post('/forgot-password', validate(forgotPasswordValidation), forgotPassword);
+AuthRoutes.post('/reset-password', validate(resetPasswordValidation), resetPassword);
 AuthRoutes.post('/send-verification-email', auth(), sendVerificationEmail);
-AuthRoutes.post('/verify-email', validate({ body: verifyEmailValidation }), verifyEmail);
-AuthRoutes.post('/token/userId', auth(), validate({ body: TokenUserIdValidation }), getTokenUserId);
+AuthRoutes.post('/verify-email', validate(verifyEmailValidation), verifyEmail);
+AuthRoutes.post('/token/userId', auth(), validate(TokenUserIdValidation), getTokenUserId);
 
 export default AuthRoutes;

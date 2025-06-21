@@ -4,7 +4,6 @@ import logger from '../config/logging.config';
 import ApiError from '../utils/ApiError';
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
-import { error } from 'console';
 
 /**
  * Converts non-ApiError instances to ApiError instances.

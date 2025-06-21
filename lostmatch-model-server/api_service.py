@@ -9,14 +9,22 @@ app = Flask(__name__)
 # Define the path where the model is saved
 model_path = "./trained_model"
 
-# Load the model (load it once when the service starts)
-try:
-    model = SentenceTransformer(model_path)
-    print(f"Sentence Transformer model loaded from {model_path}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None # Handle the case where the model fails to load
+# --- Load Model ---
+def load_model(path: str):
+    try:
+        model = SentenceTransformer(path)
+        logger.info(f"Model successfully loaded from {path}")
+        return model
+    except Exception as e:
+        logger.error(f"Failed to load model from {path}: {e}")
+        return None
 
+model = load_model(MODEL_PATH)
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+# --- Routes ---
 @app.route('/compare_items', methods=['POST'])
 def compare_items():
     if model is None:

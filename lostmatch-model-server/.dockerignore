@@ -1,0 +1,10 @@
+# Docker-related
+Dockerfile~
+docker-compose.yml
+.dockerignore
+
+# Environment config files
+.env
+.env.*
+secrets.*
+credentials.*

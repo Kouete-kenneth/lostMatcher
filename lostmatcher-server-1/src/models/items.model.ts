@@ -1,56 +1,26 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-export interface ICurrentLocation {
-  townOrVillage?: string;
-  quarter?: string;
-  specificPlace?: string;
-}
+import { Document, Schema, model, Types } from "mongoose";
 
 export interface IItem extends Document {
-  imageURL: string;
-  description: string;
-  name: string;
-  missingLocation: string;
-  currentLocation?: ICurrentLocation;
-  contactPersonContact: string;
-  status: 'no_match' | 'pending_claim' | 'claim_approved' | 'under_approval';
-  type: 'lost' | 'found';
-  descriptors: number[];
-  date: Date;
-  userId?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+	owner: Types.ObjectId;
+	name: string;
+	description: string;
+	category: string;
+	attributes: Record<string, string>;
+	images: string[];
+	registrationDate?: Date;
 }
 
-const CurrentLocationSchema: Schema = new Schema(
-  {
-    townOrVillage: { type: String },
-    quarter: { type: String },
-    specificPlace: { type: String },
-  },
-  { _id: false }
+const itemSchema = new Schema<IItem>(
+	{
+		owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+		name: { type: String, required: true },
+		description: { type: String },
+		category: { type: String, required: true },
+		attributes: { type: Map, of: String },
+		images: [String],
+		registrationDate: { type: Date, default: Date.now },
+	},
+	{ timestamps: true }
 );
 
-const ItemSchema: Schema = new Schema(
-  {
-    imageURL: { type: String, required: true },
-    description: { type: String, required: true },
-    name: { type: String, required: true },
-    missingLocation: { type: String, required: true },
-    currentLocation: { type: CurrentLocationSchema },
-    contactPersonContact: { type: String, required: true },
-    status: {
-      type: String,
-      enum: ['no_match', 'pending_claim', 'claim_approved', 'under_approval'],
-      required: true,
-      default: 'no_match',
-    },
-    type: { type: String, enum: ['lost', 'found'], required: true },
-    date: { type: Date, required: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
-    descriptors: { type: [[Number]], required: true }, // 2D array of numbers
-  },
-  { timestamps: true },
-);
-
-export default mongoose.model<IItem>('Item', ItemSchema);
+export default model<IItem>("Item", itemSchema);

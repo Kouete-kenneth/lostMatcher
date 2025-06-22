@@ -1,0 +1,6 @@
+flask
+sentence-transformers
+torch
+cv2
+fastapi
+uvicorn

@@ -3,30 +3,47 @@ import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import toJSON from './plugins/toJSON.plugin';
 import paginate from './plugins/paginate.plugin';
-import { roles } from '../config/roles.config';
+
+export enum AccountStatus {
+    Active = 'active',
+    Suspended = 'suspended'
+}
 
 export interface IUser extends Document {
-    name: string;
+    username: string;
     email: string;
-    profileUrl?: string;
     password: string;
-    role: string;
-    isEmailVerified: boolean;
-    town?: string;
-    quarter?: string;
-    phone?: string;
+    profilePicture?: string;
+    contactDetails?: {
+        phone?: string;
+        address?: {
+            region?: string;
+            town?: string;
+            quarter?: string;
+        };
+    };
+    registrationDate?: Date;
+    accountStatus: AccountStatus;
+    matchingThreshold: number;
+    notificationPreferences?: {
+        matchAlerts?: boolean;
+        generalUpdates?: boolean;
+    };
+    periodicSearchEnabled?: boolean;
     isPasswordMatch(password: string): Promise<boolean>;
 }
 
 export interface IUserModel extends Model<IUser> {
     isEmailTaken(email: string, excludeUserId?: mongoose.Types.ObjectId): Promise<boolean>;
+    isUsernameTaken(username: string, excludeUserId?: mongoose.Types.ObjectId): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(
     {
-        name: {
+        username: {
             type: String,
             required: true,
+            unique: true,
             trim: true,
         },
         email: {
@@ -41,10 +58,6 @@ const userSchema = new Schema<IUser>(
                 }
             },
         },
-        profileUrl: {
-            type: String,
-            trim: true,
-        },
         password: {
             type: String,
             required: true,
@@ -55,45 +68,50 @@ const userSchema = new Schema<IUser>(
                     throw new Error('Password must contain at least one letter and one number');
                 }
             },
-            private: true as any, // used by the toJSON plugin
+            private: true as any,
         },
-        role: {
+        profilePicture: {
             type: String,
-            enum: roles,
-            default: 'user',
+            trim: true,
         },
-        isEmailVerified: {
+        contactDetails: {
+            phone: { type: String, trim: true },
+            address: {
+                region: { type: String, trim: true },
+                town: { type: String, trim: true },
+                quarter: { type: String, trim: true },
+            }
+        },
+        registrationDate: {
+            type: Date,
+            default: Date.now,
+        },
+        accountStatus: {
+            type: String,
+            enum: Object.values(AccountStatus),
+            default: AccountStatus.Active,
+        },
+        matchingThreshold: {
+            type: Number,
+            default: 70,
+        },
+        notificationPreferences: {
+            matchAlerts: { type: Boolean, default: true },
+            generalUpdates: { type: Boolean, default: true }
+        },
+        periodicSearchEnabled: {
             type: Boolean,
             default: false,
-        },
-        town: {
-            type: String,
-            trim: true,
-        },
-        quarter: {
-            type: String,
-            trim: true,
-        },
-        phone: {
-            type: String,
-            trim: true,
-        },
+        }
     },
     {
         timestamps: true,
     }
 );
 
-// add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
 
-/**
- * Check if email is taken
- * @param {string} email - The user's email
- * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
- * @returns {Promise<boolean>}
- */
 userSchema.statics.isEmailTaken = async function (
     email: string,
     excludeUserId?: mongoose.Types.ObjectId
@@ -102,11 +120,14 @@ userSchema.statics.isEmailTaken = async function (
     return !!user;
 };
 
-/**
- * Check if password matches the user's password
- * @param {string} password
- * @returns {Promise<boolean>}
- */
+userSchema.statics.isUsernameTaken = async function (
+    username: string,
+    excludeUserId?: mongoose.Types.ObjectId
+): Promise<boolean> {
+    const user = await this.findOne({ username, _id: { $ne: excludeUserId } });
+    return !!user;
+};
+
 userSchema.methods.isPasswordMatch = async function (password: string): Promise<boolean> {
     const user = this as IUser;
     return bcrypt.compare(password, user.password);
@@ -120,9 +141,6 @@ userSchema.pre<IUser>('save', async function (next) {
     next();
 });
 
-/**
- * @typedef User
- */
 const User = mongoose.model<IUser, IUserModel>('User', userSchema);
 
 export default User;

@@ -1,65 +1,92 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Document, Schema, Types, Model } from "mongoose";
 
-export interface INotification extends Document {
-  userId: Types.ObjectId;
-  senderId: Types.ObjectId;
-  content: string;
-  status: 'read' | 'unread';
-  title: string;
-  linkText?: string;
-  recipientType: 'user' | 'chosen' | 'everyone';
-  recipients?: Types.ObjectId[];
-  createdAt?: Date;
-  updatedAt?: Date;
+/**
+ * Enum for the notification type
+ */
+
+export enum NotificationType {
+	System = "system",
+	Match = "match",
+	Claim = "claim",
+	Feedback = "feedback",
 }
 
+/**
+ * Enum for the notification read status
+ */
+export enum NotificationStatus {
+	Read = "read",
+	Unread = "unread",
+}
+
+/**
+ * Notification interface
+ */
+export interface INotification extends Document {
+	recipients: Types.ObjectId[];
+	senderId?: Types.ObjectId;
+	type: NotificationType;
+	title: string;
+	content: string;
+	link?: string;
+	status: NotificationStatus;
+	createdAt?: Date;
+	updatedAt?: Date;
+}
+
+/**
+ * Notification schema
+ */
 const notificationSchema = new Schema<INotification>(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
-    },
-    senderId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
-    },
-    content: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    status: {
-      type: String,
-      enum: ['read', 'unread'],
-      default: 'unread',
-    },
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    linkText: {
-      type: String,
-      trim: true,
-    },
-    recipientType: {
-      type: String,
-      enum: ['user', 'chosen', 'everyone'],
-      required: true,
-      default: 'user',
-    },
-    recipients: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
-  },
-  {
-    timestamps: true,
-  }
+	{
+		recipients: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "User",
+				required: true,
+			},
+		],
+		senderId: {
+			type: Schema.Types.ObjectId,
+			ref: "User",
+		},
+		type: {
+			type: String,
+			enum: Object.values(NotificationType),
+			default: NotificationType.System,
+			required: true,
+		},
+		title: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		content: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		link: {
+			type: String,
+			trim: true,
+		},
+		status: {
+			type: String,
+			enum: Object.values(NotificationStatus),
+			default: NotificationStatus.Unread,
+		},
+	},
+	{
+		timestamps: true,
+	}
 );
 
-const Notification = mongoose.model<INotification>('Notification', notificationSchema);
+/**
+ * Notification model
+ */
+const Notification: Model<INotification> = mongoose.model<INotification>(
+	"Notification",
+	notificationSchema
+);
 
 export default Notification;

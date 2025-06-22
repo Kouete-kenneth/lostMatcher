@@ -3,3 +3,5 @@ lostmatcher-server-1/.env
 lostmatcher-server-1/build
 
 lostmatch-model-server/trained_model
+
+image-matching-server/Dockerfile

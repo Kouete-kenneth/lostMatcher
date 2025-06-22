@@ -1,41 +1,47 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IMatch extends Document {
-    lostItemId: mongoose.Types.ObjectId;
-    foundItemId: mongoose.Types.ObjectId;
-    matchScore: number;
-    status: 'pending_claim' | 'claim_approved' | 'under_approval';
-    createdAt?: Date;
-    updatedAt?: Date;
+	lostReportId: mongoose.Types.ObjectId;
+	foundReportId: mongoose.Types.ObjectId;
+	matchScore: number;
+	status: "pending_claim" | "claim_approved" | "under_approval";
+	createdAt?: Date;
+	updatedAt?: Date;
+}
+
+export enum MatchStatus {
+	PendingClaim = "pending_claim",
+	UnderApproval = "under_approval",
+	ClaimApproved = "claim_approved",
 }
 
 const matchSchema: Schema<IMatch> = new Schema(
-    {
-        lostItemId: {
-            type: Schema.Types.ObjectId,
-            required: true,
-            ref: 'items',
-        },
-        foundItemId: {
-            type: Schema.Types.ObjectId,
-            required: true,
-            ref: 'items',
-        },
-        matchScore: {
-            type: Number,
-            required: true,
-        },
-        status: {
-            type: String,
-            enum: ['pending_claim', 'claim_approved', 'under_approval'],
-            default: 'pending_claim',
-        },
-    },
-    {
-        timestamps: true,
-    }
+	{
+		lostReportId: {
+			type: Schema.Types.ObjectId,
+			required: true,
+			ref: "LostReport",
+		},
+		foundReportId: {
+			type: Schema.Types.ObjectId,
+			required: true,
+			ref: "FoundReport",
+		},
+		matchScore: {
+			type: Number,
+			required: true,
+		},
+		status: {
+			type: String,
+			enum: Object.values(MatchStatus),
+			default: MatchStatus.PendingClaim,
+		},
+	},
+	{
+		timestamps: true,
+	}
 );
 
-const Match: Model<IMatch> = mongoose.model<IMatch>('Match', matchSchema);
+const Match: Model<IMatch> = mongoose.model<IMatch>("Match", matchSchema);
 
 export default Match;

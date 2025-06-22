@@ -1,0 +1,74 @@
+### Register
+POST http://localhost:5000/api-v1/auth/register
+Content-Type: application/json
+
+{
+    "email": "lostmatcher.project@gmail.com",
+    "password": "lostmatcher4321",
+    "name": "lostmatcher"
+}
+
+### Login
+POST http://localhost:5001/api-v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "lostmatcher.project@gmail.com",
+    "password": "lostmatcher4321!"
+}
+
+### Logout
+POST http://localhost:5001/api-v1/auth/logout
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzMzYyNDYsImV4cCI6MTc1MjkyODI0NiwidHlwZSI6InJlZnJlc2gifQ.Zs5dTBUwFLXGQpWOwKqJdr2vR5zgIR5x-elq8eMP2U4"
+}
+
+### Refresh Tokens
+POST http://localhost:5001/api-v1/auth/refresh-tokens
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzMzk5NTUsImV4cCI6MTc1MDM0MTc1NSwidHlwZSI6ImFjY2VzcyJ9.VkEvKp-19ERpdxjDXwc6dLH7X7gXbJhewitA0j3LQXU
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzMzYzMzQsImV4cCI6MTc1MjkyODMzNCwidHlwZSI6InJlZnJlc2gifQ.aCXEyp6fnK9a6Qj5Z3BgdQDv22KLbS2tVQORWuipkTA"
+}
+
+### Forgot Password
+POST http://localhost:5001/api-v1/auth/forgot-password
+Content-Type: application/json
+
+{
+    "email": "lostmatcher.project@gmail.com"
+}
+
+### Reset Password
+POST http://localhost:5001/api-v1/auth/reset-password?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzNDc4MTEsImV4cCI6MTc1MDM0ODQxMSwidHlwZSI6InJlc2V0UGFzc3dvcmQifQ.FRilm9-es_ufJbJCfgPtt1JA-h1pLTVrWqRpOS54jRY
+Content-Type: application/json
+
+{
+    "email": "lostmatcher.project@gmail.com",
+    "password": "lostmatcher4321!"
+}
+
+### Send Verification Email
+POST http://localhost:5001/api-v1/auth/send-verification-email
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzNDgyNTQsImV4cCI6MTc1MDM1MDA1NCwidHlwZSI6ImFjY2VzcyJ9.m5ZOahFqlar6XrF3mCpT3TI86xO8vzD1Z3XRZ-xZEns
+
+### Verify Email
+POST http://localhost:5001/api-v1/auth/verify-email?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzNDgyODMsImV4cCI6MTc1MDM0ODg4MywidHlwZSI6InZlcmlmeUVtYWlsIn0.759zwu6BUcFOPkylw4W-A1Ztq4xkYFz8Pl34AFshXc0
+Content-Type: application/json
+
+{
+    "email": "lostmatcher.project@gmail.com"
+}
+
+### Get Token UserId
+POST http://localhost:5001/api-v1/auth/token/userId
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzNDgyNTQsImV4cCI6MTc1MDM1MDA1NCwidHlwZSI6ImFjY2VzcyJ9.m5ZOahFqlar6XrF3mCpT3TI86xO8vzD1Z3XRZ-xZEns
+
+{
+    "tokenType": "refresh",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTAzNDkyNzcsImV4cCI6MTc1Mjk0MTI3NywidHlwZSI6InJlZnJlc2gifQ.foh-pdRfy1QuaZ9mb8qjVzu7RuukyWvdXLcjJROthQU"
+}

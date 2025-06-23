@@ -3,8 +3,11 @@
 from flask import Flask, request, jsonify
 import numpy as np
 import cv2
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app)
 
 def process_image(image_bytes: bytes):
     npimg = np.frombuffer(image_bytes, np.uint8)
@@ -48,6 +51,7 @@ def extract_features():
         if 'file' not in request.files:
             return jsonify({"detail": "No file part"}), 400
         file = request.files['file']
+        print(f"Received file: {file.filename}")
         image_bytes = file.read()
         img = process_image(image_bytes)
         orb = cv2.ORB_create(nfeatures=500)

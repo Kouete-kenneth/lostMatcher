@@ -1,0 +1,30 @@
+POST http://localhost:5001/api-v1/items/upload
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTA2MzcwNzcsImV4cCI6MTc1MDYzODg3NywidHlwZSI6ImFjY2VzcyJ9.OO_8jsCTDhdEVtC7e4whx7CHalnv0oGZWkIz26RqJPM
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="image4.jpg"
+Content-Type: image/jpeg
+
+< ./image4.jpg
+--boundary
+Content-Disposition: form-data; name="category"
+
+clothing
+--boundary
+Content-Disposition: form-data; name="itemDetails[name]"
+
+Blue jacket
+--boundary
+Content-Disposition: form-data; name="itemDetails[description]"
+
+Found at Central Park on March 15th
+--boundary
+Content-Disposition: form-data; name="itemDetails[category]"
+
+clothing
+--boundary
+Content-Disposition: form-data; name="attributes"
+
+{"color": "blue", "size": "medium"}
+--boundary--

@@ -26,7 +26,14 @@ const envVarsSchema = Joi.object({
 	MAX_IDLE_TIME: Joi.number()
 		.default(10000)
 		.description("Close idle connections after 10 seconds"),
-
+	SUPABASE_KEY: Joi.string().required().description("Supabase API key"),
+	SUPABASE_URL: Joi.string()
+		.uri()
+		.required()
+		.description("Supabase project URL"),
+	BUCKET_NAME: Joi.string()
+		.default("lostmatch-images")
+		.description("Supabase storage bucket name"),
 	DB_URL_DIGITAL_OCEAN: Joi.string().description(
 		"Digital Ocean MongoDB connection URL"
 	),
@@ -129,6 +136,11 @@ const config = {
 			serverSelectionTimeoutMS: envVars.DB_TIMEOUT,
 			maxIdleTimeMS: envVars.MAX_IDLE_TIME,
 		},
+	},
+	supabase: {
+		key: envVars.SUPABASE_KEY,
+		url: envVars.SUPABASE_URL,
+		bucketName: envVars.BUCKET_NAME,
 	},
 	digitalOcean: {
 		url: envVars.DB_URL_DIGITAL_OCEAN,

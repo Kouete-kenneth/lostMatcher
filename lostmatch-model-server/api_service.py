@@ -23,13 +23,6 @@ except Exception as e:
 def health():
     return {"status": "ok"}
 
-# Load the model (load it once when the service starts)
-try:
-    model = SentenceTransformer(model_path)
-    print(f"Sentence Transformer model loaded from {model_path}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None # Handle the case where the model fails to load
 @app.route('/compare_items', methods=['POST'])
 def compare_items():
     if model is None:

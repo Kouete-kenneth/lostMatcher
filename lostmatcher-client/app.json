@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "lostmatcher-client",
-    "slug": "lostmatcher-client",
+    "name": "LostMatcher",
+    "slug": "lostmatcher",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "lostmatcherclient",
+    "scheme": "lostmatcher",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -21,7 +21,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       "expo-router",

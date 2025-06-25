@@ -1,6 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
+
+    
   "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "nativewind",
     "strict": true,
     "paths": {
       "@/*": [
@@ -14,5 +18,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
-  ]
+, "babel.config.js"  ]
 }

@@ -1,7 +1,8 @@
+import { clsx, type ClassValue } from "clsx";
+
 /**
- * Utility function to combine class names (similar to clsx/cn)
- * Filters out falsy values and joins valid class names
+ * Utility function to combine class names using clsx
  */
-export function cn(...classes: (string | undefined | null | false)[]): string {
-	return classes.filter(Boolean).join(" ");
+export function cn(...inputs: ClassValue[]) {
+	return clsx(inputs);
 }

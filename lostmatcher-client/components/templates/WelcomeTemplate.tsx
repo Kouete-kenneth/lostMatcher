@@ -9,22 +9,20 @@ interface WelcomeTemplateProps {
     className?: string;
 }
 
-export default function WelcomeTemplate({
+const WelcomeTemplate: React.FC<WelcomeTemplateProps> = ({
     onGetStarted,
     className,
-}: WelcomeTemplateProps) {
-    return (
-        <SafeAreaView
-            style={styles.safeArea}
-            className={cn("bg-white dark:bg-charcoal-900", className)}
-            edges={["top", "left", "right", "bottom"]}
-        >
-            <View style={styles.container}>
-                <WelcomeContentNW onGetStarted={onGetStarted} />
-            </View>
-        </SafeAreaView>
-    );
-}
+}) => (
+    <SafeAreaView
+        style={styles.safeArea}
+        className={cn("bg-white dark:bg-charcoal-900 px-24", className)}
+        edges={["top", "left", "right", "bottom"]}
+    >
+        <View style={styles.container}>
+            <WelcomeContentNW onGetStarted={onGetStarted} />
+        </View>
+    </SafeAreaView>
+);
 
 const styles = StyleSheet.create({
     safeArea: {
@@ -32,8 +30,10 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        justifyContent: "flex-start",
+        justifyContent: "center",
         alignItems: "center",
         padding: 24,
     },
 });
+
+export default WelcomeTemplate;

@@ -1,10 +1,12 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { HapticTab } from "@/components/globals/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
+import CircularPlusIconNW from "@/components/atoms/CircularPlusIconNW";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -13,7 +15,7 @@ export default function TabLayout() {
 
 	return (
 		<Tabs
-			screenOptions={{
+			screenOptions={({ route }) => ({
 				tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
 				headerShown: false,
 				tabBarButton: HapticTab,
@@ -25,11 +27,20 @@ export default function TabLayout() {
 					},
 					default: {},
 				}),
-			}}>
+			})}>
 			<Tabs.Screen
 				name="index"
 				options={{
-					title: "Lost Items",
+					title: "Home",
+					tabBarIcon: ({ color }) => (
+						<IconSymbol size={28} name="house.fill" color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="search"
+				options={{
+					title: "Search",
 					tabBarIcon: ({ color }) => (
 						<IconSymbol
 							size={28}
@@ -40,13 +51,48 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="explore"
+				name="add"
+				options={({ navigation }) => ({
+					title: "",
+					tabBarIcon: ({ focused, color }) => {
+						// Check if home tab is active by looking at navigation state
+						const state = navigation.getState();
+						const currentRoute = state.routes[state.index];
+						const isHomeActive = currentRoute?.name === "index";
+
+						return (
+							<CircularPlusIconNW
+								size={42}
+								color={color}
+								focused={focused}
+								isHomeActive={isHomeActive}
+							/>
+						);
+					},
+					tabBarLabelStyle: { display: "none" },
+				})}
+			/>
+			<Tabs.Screen
+				name="matches"
 				options={{
-					title: "Design System",
+					title: "Matches",
 					tabBarIcon: ({ color }) => (
-						<IconSymbol
+						<MaterialCommunityIcons
+							name="check-circle"
 							size={28}
-							name="paintbrush.fill"
+							color={color}
+						/>
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="feedback"
+				options={{
+					title: "Feedback",
+					tabBarIcon: ({ color }) => (
+						<MaterialCommunityIcons
+							name="message-reply"
+							size={28}
 							color={color}
 						/>
 					),

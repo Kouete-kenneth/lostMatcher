@@ -1,6 +1,6 @@
-import { LostItemsListScreen } from "@/screens";
+import { HomeScreenNW } from "@/screens";
 import React from "react";
 
 export default function HomeTabScreen() {
-	return <LostItemsListScreen />;
+	return <HomeScreenNW />;
 }

@@ -32,7 +32,7 @@ const mockLostItems = [
 	},
 ];
 
-export default function LostItemsListScreen() {
+const LostItemsListScreen: React.FC = () => {
 	const [searchValue, setSearchValue] = useState("");
 	const [refreshing, setRefreshing] = useState(false);
 	const [filteredItems, setFilteredItems] = useState(mockLostItems);
@@ -135,4 +135,6 @@ export default function LostItemsListScreen() {
 			onRefresh={handleRefresh}
 		/>
 	);
-}
+};
+
+export default LostItemsListScreen;

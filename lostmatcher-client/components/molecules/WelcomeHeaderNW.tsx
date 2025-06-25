@@ -8,7 +8,7 @@ interface WelcomeHeaderProps {
 	className?: string;
 }
 
-export default function WelcomeHeader({ className }: WelcomeHeaderProps) {
+const WelcomeHeaderNW = ({ className }: WelcomeHeaderProps) => {
 	return (
 		<View className={cn("items-center w-full", className)}>
 			{/* Logo Section - Professional positioning */}
@@ -16,28 +16,17 @@ export default function WelcomeHeader({ className }: WelcomeHeaderProps) {
 				<LogoNW size="lg" showText={false} />
 			</View>
 
-			{/* Welcome Text Card - Professional typography matching Figma */}
-			<View className="items-center w-full px-4">
-				{/* Main Title - Bold and prominent */}
-				<View className="items-center mb-8">
-					<LabelNW
-						variant="headline"
-						weight="bold"
-						className="text-center text-charcoal-800 dark:text-charcoal-100 text-3xl font-bold leading-tight">
-						WELCOME TO LOST MATCHER
-					</LabelNW>
-				</View>
-
-				{/* Description - Professional and clear */}
-				<View className="items-center">
-					<LabelNW
-						variant="body"
-						className="text-center text-charcoal-600 dark:text-charcoal-300 text-xl leading-relaxed font-normal">
-						Find your missing items with power image and text
-						matching technology
-					</LabelNW>
-				</View>
+			{/* Welcome Text - Simple and clean */}
+			<View className="items-center w-full px-8">
+				<LabelNW
+					variant="headline"
+					weight="bold"
+					className="text-center text-charcoal-800 dark:text-charcoal-100 text-2xl font-bold">
+					WELCOME TO LOST MATCHER
+				</LabelNW>
 			</View>
 		</View>
 	);
-}
+};
+
+export default WelcomeHeaderNW;

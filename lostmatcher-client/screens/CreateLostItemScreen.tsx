@@ -45,7 +45,7 @@ const formFields = [
 	},
 ];
 
-export default function CreateLostItemScreen() {
+const CreateLostItemScreen: React.FC = () => {
 	const [formData, setFormData] = useState({
 		title: "",
 		description: "",
@@ -164,4 +164,6 @@ export default function CreateLostItemScreen() {
 			isLoading={isLoading}
 		/>
 	);
-}
+};
+
+export default CreateLostItemScreen;

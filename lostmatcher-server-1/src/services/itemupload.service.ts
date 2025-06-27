@@ -36,7 +36,7 @@ export class ItemUploadService {
 		let response;
 		try {
 			response = await axios.post(
-				"http://127.0.0.1:8000/extract-features",
+				"https://lostmatcher-latest.onrender.com/extract-features",
 				formData,
 				{
 					headers: {

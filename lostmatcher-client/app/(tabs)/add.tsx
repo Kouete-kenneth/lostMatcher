@@ -1,43 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
+import ReportLostItemFlowNW from "@/components/organisms/ReportLostItemFlowNW";
 import AddItemModalNW from "@/components/molecules/AddItemModalNW";
 
 const AddTab = () => {
-	const [isModalVisible, setIsModalVisible] = useState(false);
 	const router = useRouter();
+	const params = useLocalSearchParams();
 
-	// Show modal when this tab becomes focused
+	// This ref tracks if we should perform the initial "deep link" action
+	const isInitialAction = useRef(params.action === "reportLost");
+
+	// Initialize state based on whether it's a direct navigation
+	const [showFlow, setShowFlow] = useState(isInitialAction.current);
+	const [isModalVisible, setIsModalVisible] = useState(
+		!isInitialAction.current
+	);
+
 	useFocusEffect(
 		React.useCallback(() => {
-			setIsModalVisible(true);
+			// This effect runs every time the tab is focused
+			if (isInitialAction.current) {
+				// If it's the initial deep link, we show the flow and consume the ref
+				isInitialAction.current = false; // Consume the one-time action
+				setShowFlow(true);
+				setIsModalVisible(false);
+			} else {
+				// For all subsequent focuses, we show the modal
+				setShowFlow(false);
+				setIsModalVisible(true);
+			}
+
+			return () => {
+				// When the tab loses focus, hide the modal so it doesn't pop up unexpectedly
+				setIsModalVisible(false);
+			};
 		}, [])
 	);
 
 	const handleCloseModal = () => {
 		setIsModalVisible(false);
-		// Navigate back to home tab after closing modal
-		router.push("/");
+		// Go back to the previous screen, or home if there's no history
+		if (router.canGoBack()) {
+			router.back();
+		} else {
+			router.push("./(tabs)/");
+		}
 	};
 
 	const handleRegisterItem = () => {
 		setIsModalVisible(false);
-		// Navigate to register item screen
 		router.push("/register-item");
 	};
 
 	const handleReportLost = () => {
 		setIsModalVisible(false);
-		// Navigate to report lost screen
-		router.push("/report-lost");
+		setShowFlow(true);
 	};
 
 	const handleReportFound = () => {
 		setIsModalVisible(false);
-		// Navigate to report found screen
 		router.push("/report-found");
 	};
+
+	const handleFlowComplete = (data: any) => {
+		console.log("Lost item report data:", data);
+		setShowFlow(false);
+		// On completion, navigate to the home/main tab
+		router.push("./(tabs)/");
+	};
+
+	const handleFlowCancel = () => {
+		setShowFlow(false);
+		// After cancelling the flow, show the modal again
+		setIsModalVisible(true);
+	};
+
+	// Conditional rendering based on state
+	if (showFlow) {
+		return (
+			<ReportLostItemFlowNW
+				onComplete={handleFlowComplete}
+				onCancel={handleFlowCancel}
+			/>
+		);
+	}
 
 	return (
 		<SafeAreaView className="flex-1 bg-gray-50">

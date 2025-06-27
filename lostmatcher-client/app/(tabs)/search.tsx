@@ -47,9 +47,12 @@ const SearchTabScreen = () => {
 			console.log("Navigate to Register an Item");
 			router.push("/register-item");
 		} else {
-			// From Search view - go to Report Lost item
-			console.log("Navigate to Report Lost Item");
-			router.push("/report-lost");
+			// From Search view - go to Add tab to show the modal
+			console.log("Navigate to Add tab with reportLost action");
+			router.push({
+				pathname: "/(tabs)/add",
+				params: { action: "reportLost" },
+			});
 		}
 	};
 

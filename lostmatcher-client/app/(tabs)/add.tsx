@@ -1,102 +1,135 @@
-import React, { useState, useRef } from "react";
-import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import ScreenTemplateNW from "@/components/templates/ScreenTemplateNW";
 import ReportLostItemFlowNW from "@/components/organisms/ReportLostItemFlowNW";
+import ReportFoundItemFlowNW from "@/components/organisms/ReportFoundItemFlowNW";
+import RegisterItemFlowNW from "@/components/organisms/RegisterItemFlowNW";
 import AddItemModalNW from "@/components/molecules/AddItemModalNW";
+import { addTabEvents, ADD_TAB_PRESSED } from "@/lib/addTabEvents";
+
+type AddScreenType = "reportLost" | "reportFound" | "registerItem";
 
 const AddTab = () => {
-	const router = useRouter();
 	const params = useLocalSearchParams();
+	const router = useRouter();
 
-	// This ref tracks if we should perform the initial "deep link" action
-	const isInitialAction = useRef(params.action === "reportLost");
-
-	// Initialize state based on whether it's a direct navigation
-	const [showFlow, setShowFlow] = useState(isInitialAction.current);
-	const [isModalVisible, setIsModalVisible] = useState(
-		!isInitialAction.current
+	// Default to reportLost, or use the action from params
+	const [currentScreen, setCurrentScreen] = useState<AddScreenType>(
+		(params.action as AddScreenType) || "reportLost"
 	);
+	const [isModalVisible, setIsModalVisible] = useState(false);
 
+	// Listen for add tab press events
+	useEffect(() => {
+		const handleAddTabPress = () => {
+			setIsModalVisible(true);
+		};
+
+		addTabEvents.on(ADD_TAB_PRESSED, handleAddTabPress);
+
+		return () => {
+			addTabEvents.off(ADD_TAB_PRESSED, handleAddTabPress);
+		};
+	}, []);
+
+	// Handle direct navigation from search with action param
 	useFocusEffect(
 		React.useCallback(() => {
-			// This effect runs every time the tab is focused
-			if (isInitialAction.current) {
-				// If it's the initial deep link, we show the flow and consume the ref
-				isInitialAction.current = false; // Consume the one-time action
-				setShowFlow(true);
-				setIsModalVisible(false);
-			} else {
-				// For all subsequent focuses, we show the modal
-				setShowFlow(false);
+			// Check if we have a direct navigation action from search
+			if (params.action) {
+				setCurrentScreen(params.action as AddScreenType);
 				setIsModalVisible(true);
 			}
-
-			return () => {
-				// When the tab loses focus, hide the modal so it doesn't pop up unexpectedly
-				setIsModalVisible(false);
-			};
-		}, [])
+		}, [params.action])
 	);
+
+	const getScreenTitle = () => {
+		switch (currentScreen) {
+			case "reportLost":
+				return "Report Lost Item";
+			case "reportFound":
+				return "Report Found Item";
+			case "registerItem":
+				return "Register Item";
+			default:
+				return "Add Item";
+		}
+	};
 
 	const handleCloseModal = () => {
 		setIsModalVisible(false);
-		// Go back to the previous screen, or home if there's no history
-		if (router.canGoBack()) {
-			router.back();
-		} else {
-			router.push("./(tabs)/");
-		}
+		// Stay on current screen instead of going back
 	};
 
 	const handleRegisterItem = () => {
 		setIsModalVisible(false);
-		router.push("/register-item");
+		setCurrentScreen("registerItem");
 	};
 
 	const handleReportLost = () => {
 		setIsModalVisible(false);
-		setShowFlow(true);
+		setCurrentScreen("reportLost");
 	};
 
 	const handleReportFound = () => {
 		setIsModalVisible(false);
-		router.push("/report-found");
+		setCurrentScreen("reportFound");
+	};
+
+	const handleBackPress = () => {
+		// Go to previous screen
+		router.back();
 	};
 
 	const handleFlowComplete = (data: any) => {
-		console.log("Lost item report data:", data);
-		setShowFlow(false);
-		// On completion, navigate to the home/main tab
-		router.push("./(tabs)/");
+		console.log("Item report data:", data);
+		// Stay on current screen after completion
+		// Could show a success message or navigate to a results screen
 	};
 
 	const handleFlowCancel = () => {
-		setShowFlow(false);
-		// After cancelling the flow, show the modal again
+		// Show modal again when flow is cancelled
 		setIsModalVisible(true);
 	};
 
-	// Conditional rendering based on state
-	if (showFlow) {
-		return (
-			<ReportLostItemFlowNW
-				onComplete={handleFlowComplete}
-				onCancel={handleFlowCancel}
-			/>
-		);
-	}
+	const renderCurrentScreen = () => {
+		switch (currentScreen) {
+			case "reportLost":
+				return (
+					<ReportLostItemFlowNW
+						onComplete={handleFlowComplete}
+						onCancel={handleFlowCancel}
+					/>
+				);
+			case "reportFound":
+				return (
+					<ReportFoundItemFlowNW
+						onComplete={handleFlowComplete}
+						onCancel={handleFlowCancel}
+					/>
+				);
+			case "registerItem":
+				return (
+					<RegisterItemFlowNW
+						onComplete={handleFlowComplete}
+						onCancel={handleFlowCancel}
+					/>
+				);
+			default:
+				return null;
+		}
+	};
 
 	return (
-		<SafeAreaView className="flex-1 bg-gray-50">
-			<View className="flex-1 items-center justify-center">
-				<Text className="text-2xl font-bold text-gray-800 mb-4">
-					Add Item
-				</Text>
-				<Text className="text-gray-600 text-center px-8">
-					This screen will allow users to add new lost or found items.
-				</Text>
-			</View>
+		<>
+			<ScreenTemplateNW
+				title={getScreenTitle()}
+				showBackButton={true}
+				onBackPress={handleBackPress}
+				contentClassName="px-0 py-0"
+				scrollable={false}>
+				{renderCurrentScreen()}
+			</ScreenTemplateNW>
 
 			<AddItemModalNW
 				isVisible={isModalVisible}
@@ -105,7 +138,7 @@ const AddTab = () => {
 				onReportLost={handleReportLost}
 				onReportFound={handleReportFound}
 			/>
-		</SafeAreaView>
+		</>
 	);
 };
 

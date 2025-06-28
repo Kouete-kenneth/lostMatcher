@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
     "description1": "Bluetooth earphones in a dark case",
-    "description2": "lblack wireless earbuds"
+    "description2": "black wireless earbuds"
 }
 ### test extract-features locally
 POST http://localhost:8000/extract-features

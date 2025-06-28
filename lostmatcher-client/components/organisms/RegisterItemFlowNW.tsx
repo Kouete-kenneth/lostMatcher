@@ -18,7 +18,7 @@ import DropdownSelectorNW, {
 	DropdownOption,
 } from "@/components/molecules/DropdownSelectorNW";
 
-interface ReportLostItemFlowProps {
+interface RegisterItemFlowProps {
 	onComplete: (data: any) => void;
 	onCancel: () => void;
 }
@@ -28,18 +28,20 @@ interface FormData {
 	name: string;
 	category: string;
 	description: string;
-	location: string;
-	date: Date;
-	time: Date;
+	currentLocation: string;
+	dateRegistered: Date;
+	contactInfo: string;
 	color: string;
 	size: string;
 	material: string;
+	serialNumber: string;
+	value: string;
 }
 
 const STEPS = [
 	{ number: 1, name: "Image" },
-	{ number: 2, name: "Lost Info" },
-	{ number: 3, name: "General" },
+	{ number: 2, name: "Details" },
+	{ number: 3, name: "Registration" },
 	{ number: 4, name: "Attributes" },
 ];
 
@@ -93,14 +95,13 @@ const MATERIAL_OPTIONS: DropdownOption[] = MATERIALS.map((material) => ({
 	label: material,
 }));
 
-export default function ReportLostItemFlowNW({
+export default function RegisterItemFlowNW({
 	onComplete,
 	onCancel,
-}: ReportLostItemFlowProps) {
+}: RegisterItemFlowProps) {
 	const [currentStep, setCurrentStep] = useState(1);
 	const [expandedSection, setExpandedSection] = useState<number | null>(null);
 	const [showDatePicker, setShowDatePicker] = useState(false);
-	const [showTimePicker, setShowTimePicker] = useState(false);
 
 	// Centralized dropdown state
 	const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -110,12 +111,14 @@ export default function ReportLostItemFlowNW({
 		name: "",
 		category: "",
 		description: "",
-		location: "",
-		date: new Date(),
-		time: new Date(),
+		currentLocation: "",
+		dateRegistered: new Date(),
+		contactInfo: "",
 		color: "",
 		size: "",
 		material: "",
+		serialNumber: "",
+		value: "",
 	});
 
 	// Update form data
@@ -213,7 +216,7 @@ export default function ReportLostItemFlowNW({
 			setCurrentStep(nextStep);
 			// Auto-expand the corresponding section
 			if (nextStep === 2) setExpandedSection(1); // Details
-			else if (nextStep === 3) setExpandedSection(2); // General
+			else if (nextStep === 3) setExpandedSection(2); // Registration
 			else if (nextStep === 4) setExpandedSection(3); // Attributes
 		}
 	};
@@ -235,8 +238,7 @@ export default function ReportLostItemFlowNW({
 
 	// Validation functions for each step
 	const isStep1Complete = () => {
-		// Image is optional for lost items - user can always add it later
-		return true;
+		return !!formData.image;
 	};
 
 	const isStep2Complete = () => {
@@ -244,12 +246,18 @@ export default function ReportLostItemFlowNW({
 	};
 
 	const isStep3Complete = () => {
-		return !!formData.location;
+		return !!(formData.currentLocation && formData.contactInfo);
 	};
 
 	const isStep4Complete = () => {
 		// Step 4 is complete if at least one optional attribute is filled
-		return !!(formData.color || formData.size || formData.material);
+		return !!(
+			formData.color ||
+			formData.size ||
+			formData.material ||
+			formData.serialNumber ||
+			formData.value
+		);
 	};
 
 	const isStepComplete = (stepNumber: number) => {
@@ -270,10 +278,12 @@ export default function ReportLostItemFlowNW({
 	// Validation
 	const canProceed = () => {
 		return (
+			formData.image &&
 			formData.name &&
 			formData.category &&
 			formData.description &&
-			formData.location
+			formData.currentLocation &&
+			formData.contactInfo
 		);
 	};
 
@@ -283,7 +293,7 @@ export default function ReportLostItemFlowNW({
 		} else {
 			Alert.alert(
 				"Error",
-				"Please complete steps 2-3 before submitting."
+				"Please complete steps 1-3 before submitting."
 			);
 		}
 	};
@@ -372,19 +382,19 @@ export default function ReportLostItemFlowNW({
 	const renderActionSections = () => {
 		const sections = [
 			{
-				title: "Lost Info",
+				title: "Details",
 				description: "Item name, category, description",
 				fields: ["name", "category", "description"],
 			},
 			{
-				title: "General",
-				description: "Lost location, date, time",
-				fields: ["location", "date", "time"],
+				title: "Registration",
+				description: "Location, date, contact information",
+				fields: ["currentLocation", "dateRegistered", "contactInfo"],
 			},
 			{
 				title: "Optional Attributes",
-				description: "Colour, size, material",
-				fields: ["color", "size", "material"],
+				description: "Colour, size, material, serial, value",
+				fields: ["color", "size", "material", "serialNumber", "value"],
 			},
 		];
 
@@ -468,8 +478,8 @@ export default function ReportLostItemFlowNW({
 				<View className="px-4 pb-6">
 					<View className="mb-4">
 						<Text className="text-sm text-gray-600 text-center">
-							Adding a photo is optional but helps others identify
-							your lost item
+							A photo is required to register your item for future
+							identification
 						</Text>
 					</View>
 
@@ -509,8 +519,8 @@ export default function ReportLostItemFlowNW({
 								resizeMode="cover"
 							/>
 							<Text className="text-sm text-green-700 text-center mb-3">
-								✓ Photo added! This will help others identify
-								your lost item
+								✓ Photo added! This will help with item
+								identification
 							</Text>
 							<View className="flex-row justify-center gap-6">
 								<TouchableOpacity
@@ -541,18 +551,10 @@ export default function ReportLostItemFlowNW({
 						</View>
 					)}
 
-					{!formData.image && (
-						<View className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-							<Text className="text-sm text-blue-700 text-center">
-								You can skip adding a photo or add one later
-							</Text>
-						</View>
-					)}
-
 					<ButtonNW
 						title="Next"
 						onPress={handleNext}
-						disabled={false}
+						disabled={!formData.image}
 						className="mt-6"
 					/>
 				</View>
@@ -577,7 +579,7 @@ export default function ReportLostItemFlowNW({
 		} else if (expandedSection === 2) {
 			return (
 				<>
-					{renderGeneralForm()}
+					{renderRegistrationForm()}
 					<View className="mx-4 mb-6">
 						<ButtonNW
 							title="Next"
@@ -594,7 +596,7 @@ export default function ReportLostItemFlowNW({
 					{renderAttributesForm()}
 					<View className="mx-4 mb-6">
 						<ButtonNW
-							title="Submit Report"
+							title="Register Item"
 							onPress={handleSubmit}
 							disabled={!canProceed()}
 							className=""
@@ -646,20 +648,22 @@ export default function ReportLostItemFlowNW({
 		</View>
 	);
 
-	const renderGeneralForm = () => (
+	const renderRegistrationForm = () => (
 		<View className="mx-4 mb-6 rounded-lg border border-gray-200">
 			<View className="px-4 py-6">
 				<FormFieldNW
-					label="Lost Location"
-					value={formData.location}
-					onChangeText={(text) => updateFormData("location", text)}
-					placeholder="Where did you lose it?"
+					label="Current Location *"
+					value={formData.currentLocation}
+					onChangeText={(text) =>
+						updateFormData("currentLocation", text)
+					}
+					placeholder="Where is the item currently located?"
 					className="mb-4"
 				/>
 
 				<View className="mb-4">
 					<Text className="text-sm font-medium text-gray-700 mb-2">
-						Date
+						Date Registered
 					</Text>
 					<TouchableOpacity
 						className="border border-gray-100 rounded-lg p-3 bg-white flex-row items-center"
@@ -671,53 +675,28 @@ export default function ReportLostItemFlowNW({
 							className="mr-3"
 						/>
 						<Text className="text-gray-900 flex-1">
-							{formData.date.toLocaleDateString()}
+							{formData.dateRegistered.toLocaleDateString()}
 						</Text>
 					</TouchableOpacity>
 				</View>
 
-				<View className="mb-4">
-					<Text className="text-sm font-medium text-gray-700 mb-2">
-						Time
-					</Text>
-					<TouchableOpacity
-						className="border border-gray-100 rounded-lg p-3 bg-white flex-row items-center"
-						onPress={() => setShowTimePicker(true)}>
-						<Ionicons
-							name="time"
-							size={20}
-							color="#6B7280"
-							className="mr-3"
-						/>
-						<Text className="text-gray-900 flex-1">
-							{formData.time.toLocaleTimeString()}
-						</Text>
-					</TouchableOpacity>
-				</View>
+				<FormFieldNW
+					label="Contact Information *"
+					value={formData.contactInfo}
+					onChangeText={(text) => updateFormData("contactInfo", text)}
+					placeholder="Email or phone number"
+					className="mb-4"
+				/>
 
 				{showDatePicker && (
 					<DateTimePicker
-						value={formData.date}
+						value={formData.dateRegistered}
 						mode="date"
 						display="default"
 						onChange={(event, selectedDate) => {
 							setShowDatePicker(false);
 							if (selectedDate) {
-								updateFormData("date", selectedDate);
-							}
-						}}
-					/>
-				)}
-
-				{showTimePicker && (
-					<DateTimePicker
-						value={formData.time}
-						mode="time"
-						display="default"
-						onChange={(event, selectedTime) => {
-							setShowTimePicker(false);
-							if (selectedTime) {
-								updateFormData("time", selectedTime);
+								updateFormData("dateRegistered", selectedDate);
 							}
 						}}
 					/>
@@ -764,6 +743,25 @@ export default function ReportLostItemFlowNW({
 					onToggle={() => toggleDropdown("material")}
 					allowCustom
 					customPlaceholder="Enter custom material"
+				/>
+
+				<FormFieldNW
+					label="Serial Number"
+					value={formData.serialNumber}
+					onChangeText={(text) =>
+						updateFormData("serialNumber", text)
+					}
+					placeholder="Enter serial number (if applicable)"
+					className="mb-4"
+				/>
+
+				<FormFieldNW
+					label="Estimated Value"
+					value={formData.value}
+					onChangeText={(text) => updateFormData("value", text)}
+					placeholder="Enter estimated value"
+					className="mb-4"
+					keyboardType="numeric"
 				/>
 			</View>
 		</View>

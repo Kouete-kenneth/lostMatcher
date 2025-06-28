@@ -4,11 +4,13 @@ import { Platform } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { HapticTab } from "@/components/globals/HapticTab";
+import { CustomAddTabButton } from "@/components/globals/CustomAddTabButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import CircularPlusIconNW from "@/components/atoms/CircularPlusIconNW";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { addTabEvents, ADD_TAB_PRESSED } from "@/lib/addTabEvents";
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
@@ -54,6 +56,15 @@ export default function TabLayout() {
 				name="add"
 				options={({ navigation }) => ({
 					title: "",
+					tabBarButton: (props) => (
+						<CustomAddTabButton
+							{...props}
+							onCustomPress={() => {
+								// Emit event that add tab was pressed
+								addTabEvents.emit(ADD_TAB_PRESSED);
+							}}
+						/>
+					),
 					tabBarIcon: ({ focused, color }) => {
 						// Check if home tab is active by looking at navigation state
 						const state = navigation.getState();

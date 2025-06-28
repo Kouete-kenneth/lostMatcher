@@ -18,7 +18,7 @@ import DropdownSelectorNW, {
 	DropdownOption,
 } from "@/components/molecules/DropdownSelectorNW";
 
-interface ReportLostItemFlowProps {
+interface ReportFoundItemFlowProps {
 	onComplete: (data: any) => void;
 	onCancel: () => void;
 }
@@ -28,9 +28,11 @@ interface FormData {
 	name: string;
 	category: string;
 	description: string;
-	location: string;
-	date: Date;
-	time: Date;
+	foundLocation: string;
+	dateFound: Date;
+	timeFound: Date;
+	currentLocation: string;
+	contactInfo: string;
 	color: string;
 	size: string;
 	material: string;
@@ -38,8 +40,8 @@ interface FormData {
 
 const STEPS = [
 	{ number: 1, name: "Image" },
-	{ number: 2, name: "Lost Info" },
-	{ number: 3, name: "General" },
+	{ number: 2, name: "Details" },
+	{ number: 3, name: "Found Info" },
 	{ number: 4, name: "Attributes" },
 ];
 
@@ -93,10 +95,10 @@ const MATERIAL_OPTIONS: DropdownOption[] = MATERIALS.map((material) => ({
 	label: material,
 }));
 
-export default function ReportLostItemFlowNW({
+export default function ReportFoundItemFlowNW({
 	onComplete,
 	onCancel,
-}: ReportLostItemFlowProps) {
+}: ReportFoundItemFlowProps) {
 	const [currentStep, setCurrentStep] = useState(1);
 	const [expandedSection, setExpandedSection] = useState<number | null>(null);
 	const [showDatePicker, setShowDatePicker] = useState(false);
@@ -110,9 +112,11 @@ export default function ReportLostItemFlowNW({
 		name: "",
 		category: "",
 		description: "",
-		location: "",
-		date: new Date(),
-		time: new Date(),
+		foundLocation: "",
+		dateFound: new Date(),
+		timeFound: new Date(),
+		currentLocation: "",
+		contactInfo: "",
 		color: "",
 		size: "",
 		material: "",
@@ -213,7 +217,7 @@ export default function ReportLostItemFlowNW({
 			setCurrentStep(nextStep);
 			// Auto-expand the corresponding section
 			if (nextStep === 2) setExpandedSection(1); // Details
-			else if (nextStep === 3) setExpandedSection(2); // General
+			else if (nextStep === 3) setExpandedSection(2); // Found Info
 			else if (nextStep === 4) setExpandedSection(3); // Attributes
 		}
 	};
@@ -235,8 +239,7 @@ export default function ReportLostItemFlowNW({
 
 	// Validation functions for each step
 	const isStep1Complete = () => {
-		// Image is optional for lost items - user can always add it later
-		return true;
+		return !!formData.image;
 	};
 
 	const isStep2Complete = () => {
@@ -244,7 +247,11 @@ export default function ReportLostItemFlowNW({
 	};
 
 	const isStep3Complete = () => {
-		return !!formData.location;
+		return !!(
+			formData.foundLocation &&
+			formData.currentLocation &&
+			formData.contactInfo
+		);
 	};
 
 	const isStep4Complete = () => {
@@ -270,10 +277,13 @@ export default function ReportLostItemFlowNW({
 	// Validation
 	const canProceed = () => {
 		return (
+			formData.image &&
 			formData.name &&
 			formData.category &&
 			formData.description &&
-			formData.location
+			formData.foundLocation &&
+			formData.currentLocation &&
+			formData.contactInfo
 		);
 	};
 
@@ -283,7 +293,7 @@ export default function ReportLostItemFlowNW({
 		} else {
 			Alert.alert(
 				"Error",
-				"Please complete steps 2-3 before submitting."
+				"Please complete steps 1-3 before submitting."
 			);
 		}
 	};
@@ -372,14 +382,20 @@ export default function ReportLostItemFlowNW({
 	const renderActionSections = () => {
 		const sections = [
 			{
-				title: "Lost Info",
+				title: "Details",
 				description: "Item name, category, description",
 				fields: ["name", "category", "description"],
 			},
 			{
-				title: "General",
-				description: "Lost location, date, time",
-				fields: ["location", "date", "time"],
+				title: "Found Info",
+				description: "Where and when found, current location",
+				fields: [
+					"foundLocation",
+					"dateFound",
+					"timeFound",
+					"currentLocation",
+					"contactInfo",
+				],
 			},
 			{
 				title: "Optional Attributes",
@@ -468,8 +484,8 @@ export default function ReportLostItemFlowNW({
 				<View className="px-4 pb-6">
 					<View className="mb-4">
 						<Text className="text-sm text-gray-600 text-center">
-							Adding a photo is optional but helps others identify
-							your lost item
+							A photo is required to help owners identify their
+							lost item
 						</Text>
 					</View>
 
@@ -509,8 +525,8 @@ export default function ReportLostItemFlowNW({
 								resizeMode="cover"
 							/>
 							<Text className="text-sm text-green-700 text-center mb-3">
-								✓ Photo added! This will help others identify
-								your lost item
+								✓ Photo added! This will help owners identify
+								their item
 							</Text>
 							<View className="flex-row justify-center gap-6">
 								<TouchableOpacity
@@ -541,18 +557,10 @@ export default function ReportLostItemFlowNW({
 						</View>
 					)}
 
-					{!formData.image && (
-						<View className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-							<Text className="text-sm text-blue-700 text-center">
-								You can skip adding a photo or add one later
-							</Text>
-						</View>
-					)}
-
 					<ButtonNW
 						title="Next"
 						onPress={handleNext}
-						disabled={false}
+						disabled={!formData.image}
 						className="mt-6"
 					/>
 				</View>
@@ -577,7 +585,7 @@ export default function ReportLostItemFlowNW({
 		} else if (expandedSection === 2) {
 			return (
 				<>
-					{renderGeneralForm()}
+					{renderFoundInfoForm()}
 					<View className="mx-4 mb-6">
 						<ButtonNW
 							title="Next"
@@ -637,7 +645,7 @@ export default function ReportLostItemFlowNW({
 					label="Description *"
 					value={formData.description}
 					onChangeText={(text) => updateFormData("description", text)}
-					placeholder="Describe the item"
+					placeholder="Describe the found item"
 					multiline
 					numberOfLines={3}
 					className="mb-4"
@@ -646,20 +654,22 @@ export default function ReportLostItemFlowNW({
 		</View>
 	);
 
-	const renderGeneralForm = () => (
+	const renderFoundInfoForm = () => (
 		<View className="mx-4 mb-6 rounded-lg border border-gray-200">
 			<View className="px-4 py-6">
 				<FormFieldNW
-					label="Lost Location"
-					value={formData.location}
-					onChangeText={(text) => updateFormData("location", text)}
-					placeholder="Where did you lose it?"
+					label="Where Found *"
+					value={formData.foundLocation}
+					onChangeText={(text) =>
+						updateFormData("foundLocation", text)
+					}
+					placeholder="Where did you find this item?"
 					className="mb-4"
 				/>
 
 				<View className="mb-4">
 					<Text className="text-sm font-medium text-gray-700 mb-2">
-						Date
+						Date Found
 					</Text>
 					<TouchableOpacity
 						className="border border-gray-100 rounded-lg p-3 bg-white flex-row items-center"
@@ -671,14 +681,14 @@ export default function ReportLostItemFlowNW({
 							className="mr-3"
 						/>
 						<Text className="text-gray-900 flex-1">
-							{formData.date.toLocaleDateString()}
+							{formData.dateFound.toLocaleDateString()}
 						</Text>
 					</TouchableOpacity>
 				</View>
 
 				<View className="mb-4">
 					<Text className="text-sm font-medium text-gray-700 mb-2">
-						Time
+						Time Found
 					</Text>
 					<TouchableOpacity
 						className="border border-gray-100 rounded-lg p-3 bg-white flex-row items-center"
@@ -690,20 +700,38 @@ export default function ReportLostItemFlowNW({
 							className="mr-3"
 						/>
 						<Text className="text-gray-900 flex-1">
-							{formData.time.toLocaleTimeString()}
+							{formData.timeFound.toLocaleTimeString()}
 						</Text>
 					</TouchableOpacity>
 				</View>
 
+				<FormFieldNW
+					label="Current Location *"
+					value={formData.currentLocation}
+					onChangeText={(text) =>
+						updateFormData("currentLocation", text)
+					}
+					placeholder="Where is the item now?"
+					className="mb-4"
+				/>
+
+				<FormFieldNW
+					label="Contact Information *"
+					value={formData.contactInfo}
+					onChangeText={(text) => updateFormData("contactInfo", text)}
+					placeholder="Email or phone number"
+					className="mb-4"
+				/>
+
 				{showDatePicker && (
 					<DateTimePicker
-						value={formData.date}
+						value={formData.dateFound}
 						mode="date"
 						display="default"
 						onChange={(event, selectedDate) => {
 							setShowDatePicker(false);
 							if (selectedDate) {
-								updateFormData("date", selectedDate);
+								updateFormData("dateFound", selectedDate);
 							}
 						}}
 					/>
@@ -711,13 +739,13 @@ export default function ReportLostItemFlowNW({
 
 				{showTimePicker && (
 					<DateTimePicker
-						value={formData.time}
+						value={formData.timeFound}
 						mode="time"
 						display="default"
 						onChange={(event, selectedTime) => {
 							setShowTimePicker(false);
 							if (selectedTime) {
-								updateFormData("time", selectedTime);
+								updateFormData("timeFound", selectedTime);
 							}
 						}}
 					/>

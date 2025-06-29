@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { cn } from "@/lib/utils";
 
 interface AvatarProps {
@@ -30,14 +30,28 @@ const AvatarNW = ({
 	return (
 		<View
 			className={cn(
-				"rounded-full bg-primary-500 items-center justify-center",
+				"rounded-full bg-primary-500 items-center justify-center overflow-hidden",
 				sizeClasses[size],
 				className
 			)}>
-			<Text
-				className={cn("text-white font-medium", textSizeClasses[size])}>
-				{initials}
-			</Text>
+			{imageUrl ? (
+				<Image
+					source={{ uri: imageUrl }}
+					style={{
+						width: "100%",
+						height: "100%",
+						resizeMode: "cover",
+					}}
+				/>
+			) : (
+				<Text
+					className={cn(
+						"text-white font-medium",
+						textSizeClasses[size]
+					)}>
+					{initials}
+				</Text>
+			)}
 		</View>
 	);
 };

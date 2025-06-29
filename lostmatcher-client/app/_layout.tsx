@@ -95,6 +95,10 @@ function RootLayoutNav() {
 							name="support"
 							options={{ headerShown: false }}
 						/>
+						<Stack.Screen
+							name="profile"
+							options={{ headerShown: false }}
+						/>
 						<Stack.Screen name="+not-found" />
 					</Stack>
 				</ThemeProvider>

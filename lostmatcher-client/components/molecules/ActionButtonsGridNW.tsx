@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 
 interface ActionButtonsGridProps {
 	className?: string;
+	onDonatePress?: () => void;
 }
 
 interface ActionButton {
@@ -20,7 +21,10 @@ interface ActionButton {
 	onPress: () => void;
 }
 
-const ActionButtonsGridNW = ({ className }: ActionButtonsGridProps) => {
+const ActionButtonsGridNW = ({
+	className,
+	onDonatePress,
+}: ActionButtonsGridProps) => {
 	const router = useRouter();
 	const actionButtons: ActionButton[] = [
 		{
@@ -57,7 +61,7 @@ const ActionButtonsGridNW = ({ className }: ActionButtonsGridProps) => {
 			label: "Recovered",
 			color: "bg-pink-500",
 			onPress: () => router.push("/my-recovered"),
-		},
+		}
 	];
 
 	return (

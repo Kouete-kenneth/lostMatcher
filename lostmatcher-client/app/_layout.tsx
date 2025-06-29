@@ -8,14 +8,14 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
 	SafeAreaProvider,
-	SafeAreaView,
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { View, Platform } from "react-native";
+import { View } from "react-native";
 import "react-native-reanimated";
 import "../global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 function RootLayoutNav() {
 	const colorScheme = useColorScheme();
@@ -47,6 +47,54 @@ function RootLayoutNav() {
 							name="(tabs)"
 							options={{ headerShown: false }}
 						/>
+						<Stack.Screen
+							name="claim-screen"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="report-found"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="report-lost"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="register-item"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="lost-items"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="found-items"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="registered-items"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="search-results"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="my-claims"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="my-recovered"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="notifications"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="support"
+							options={{ headerShown: false }}
+						/>
 						<Stack.Screen name="+not-found" />
 					</Stack>
 				</ThemeProvider>
@@ -72,7 +120,9 @@ export default function RootLayout() {
 
 	return (
 		<SafeAreaProvider>
-			<RootLayoutNav />
+			<NotificationProvider>
+				<RootLayoutNav />
+			</NotificationProvider>
 		</SafeAreaProvider>
 	);
 }

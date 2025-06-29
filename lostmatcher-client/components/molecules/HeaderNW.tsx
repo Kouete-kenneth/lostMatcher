@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import { cn } from "@/lib/utils";
 import SideMenuNW from "@/components/organisms/SideMenuNW";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -32,6 +33,7 @@ const HeaderNW = ({
 	onNotificationPress,
 }: HeaderNWProps) => {
 	const [isMenuVisible, setIsMenuVisible] = useState(false);
+	const router = useRouter();
 
 	const handleMenuPress = () => {
 		setIsMenuVisible(true);
@@ -42,8 +44,12 @@ const HeaderNW = ({
 	};
 
 	const handleNotificationPress = () => {
-		onNotificationPress?.();
-		console.log("Notifications pressed");
+		if (onNotificationPress) {
+			onNotificationPress();
+		} else {
+			// Default navigation to notifications screen
+			router.push("/notifications");
+		}
 	};
 
 	return (

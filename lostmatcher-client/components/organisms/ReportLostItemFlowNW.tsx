@@ -123,6 +123,25 @@ export default function ReportLostItemFlowNW({
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
+	// Reset form data to initial state
+	const resetFormData = () => {
+		setFormData({
+			image: null,
+			name: "",
+			category: "",
+			description: "",
+			location: "",
+			date: new Date(),
+			time: new Date(),
+			color: "",
+			size: "",
+			material: "",
+		});
+		setCurrentStep(1);
+		setExpandedSection(null);
+		closeAllDropdowns();
+	};
+
 	// Dropdown handlers
 	const toggleDropdown = (dropdownId: string) => {
 		setOpenDropdown(openDropdown === dropdownId ? null : dropdownId);
@@ -280,6 +299,8 @@ export default function ReportLostItemFlowNW({
 	const handleSubmit = () => {
 		if (canProceed()) {
 			onComplete(formData);
+			// Reset form after successful submission
+			resetFormData();
 		} else {
 			Alert.alert(
 				"Error",
@@ -601,6 +622,20 @@ export default function ReportLostItemFlowNW({
 						/>
 					</View>
 				</>
+			);
+		}
+
+		// Show submit button when no section is expanded but form is valid
+		if (!expandedSection && canProceed()) {
+			return (
+				<View className="mx-4 mb-6">
+					<ButtonNW
+						title="Submit Report"
+						onPress={handleSubmit}
+						disabled={false}
+						className=""
+					/>
+				</View>
 			);
 		}
 

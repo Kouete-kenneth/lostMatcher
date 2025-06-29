@@ -1,6 +1,6 @@
 import React from "react";
 import { ScrollView, StyleSheet, View, ViewStyle } from "react-native";
-import { Button, Label } from "../atoms";
+import { ButtonNW as Button, Label } from "../atoms";
 import { FormField } from "../molecules";
 
 interface FormData {

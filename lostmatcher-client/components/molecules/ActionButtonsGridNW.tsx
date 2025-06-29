@@ -6,6 +6,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import TagPlusIconNW from "@/components/atoms/TagPlusIconNW";
 import MagnifierCheckIconNW from "@/components/atoms/MagnifierCheckIconNW";
 import MagnifierMinusIconNW from "@/components/atoms/MagnifierMinusIconNW";
+import { useRouter } from "expo-router";
 
 interface ActionButtonsGridProps {
 	className?: string;
@@ -20,41 +21,42 @@ interface ActionButton {
 }
 
 const ActionButtonsGridNW = ({ className }: ActionButtonsGridProps) => {
+	const router = useRouter();
 	const actionButtons: ActionButton[] = [
 		{
 			icon: "tag-plus",
 			iconLibrary: "Custom",
-			label: "Add item",
+			label: "Saved",
 			color: "bg-green-500",
-			onPress: () => console.log("Add item pressed"),
+			onPress: () => router.push("/registered-items"),
 		},
 		{
 			icon: "magnifier-check",
 			iconLibrary: "Custom",
 			label: "Found",
 			color: "bg-blue-500",
-			onPress: () => console.log("Found pressed"),
+			onPress: () => router.push("/found-items"),
 		},
 		{
 			icon: "magnifier-minus",
 			iconLibrary: "Custom",
 			label: "Lost",
 			color: "bg-orange-500",
-			onPress: () => console.log("Lost pressed"),
+			onPress: () => router.push("/lost-items"),
 		},
 		{
 			icon: "check-box",
 			iconLibrary: "MaterialIcons",
-			label: "Approved",
+			label: "My Claims",
 			color: "bg-emerald-500",
-			onPress: () => console.log("Approved pressed"),
+			onPress: () => router.push("/my-claims"),
 		},
 		{
 			icon: "history",
 			iconLibrary: "MaterialIcons",
 			label: "Recovered",
 			color: "bg-pink-500",
-			onPress: () => console.log("Recovered pressed"),
+			onPress: () => router.push("/my-recovered"),
 		},
 	];
 

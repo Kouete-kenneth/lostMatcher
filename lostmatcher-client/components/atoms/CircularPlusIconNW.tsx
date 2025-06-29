@@ -22,7 +22,7 @@ const CircularPlusIconNW = ({
 		// When Home tab is selected, always show yellow regardless of focus state
 		iconColor = "#FACC15";
 	} else {
-		// When any other tab is selected, use normal tab behavior
+		// Use normal tab behavior - focused state determines color
 		iconColor = focused ? color : "#9CA3AF";
 	}
 

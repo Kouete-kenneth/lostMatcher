@@ -38,7 +38,7 @@ const AddTab = () => {
 			// Check if we have a direct navigation action from search
 			if (params.action) {
 				setCurrentScreen(params.action as AddScreenType);
-				setIsModalVisible(true);
+				// Don't show modal for direct navigation - go straight to the flow
 			}
 		}, [params.action])
 	);
@@ -82,9 +82,30 @@ const AddTab = () => {
 	};
 
 	const handleFlowComplete = (data: any) => {
+		console.log("=== HANDLE FLOW COMPLETE CALLED ===");
 		console.log("Item report data:", data);
-		// Stay on current screen after completion
-		// Could show a success message or navigate to a results screen
+		console.log("Current screen:", currentScreen);
+
+		// If it's a lost item report, navigate to search results
+		if (currentScreen === "reportLost") {
+			console.log("Navigating to search results...");
+			router.push({
+				pathname: "/search-results",
+				params: {
+					lostItemId: data.id || `lost_${Date.now()}`,
+					itemName: data.name || "Your Lost Item",
+					// Pass other relevant data for the search
+					description: data.description,
+					category: data.category,
+					image: data.image,
+				},
+			});
+			console.log("Navigation completed");
+		} else {
+			// For found items and register items, stay on current screen
+			// Could show a success message or navigate to a different screen
+			console.log("Completed:", currentScreen);
+		}
 	};
 
 	const handleFlowCancel = () => {

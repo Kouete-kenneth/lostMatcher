@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, TextInput } from "react-native";
 import SearchActionItemNW from "@/components/atoms/SearchActionItemNW";
 import RegisteredItemNW from "@/components/atoms/RegisteredItemNW";
 
@@ -26,9 +26,22 @@ const RegisteredItemsListNW = ({
 			className="flex-1"
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
-				paddingHorizontal: 16,
-				paddingVertical: 24,
+				paddingHorizontal: 8,
+				paddingVertical: 8,
 			}}>
+			{/* Search Bar - Placeholder for future search functionality */}
+			<View className="mb-4">
+				{/* Placeholder for search input */}
+				<TextInput
+					placeholder="Search registered items..."
+					style={{
+						backgroundColor: "#f3f4f6",
+						borderRadius: 8,
+						padding: 8,
+						fontSize: 16,
+					}}
+				/>
+			</View>
 			{/* Add New Item Action - Always at top */}
 			<View className="mb-6">
 				<SearchActionItemNW

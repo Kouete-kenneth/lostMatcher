@@ -56,7 +56,9 @@ const ScreenHeaderNW = ({
 			</View>
 
 			{/* Right side - Support icon */}
-			<TouchableOpacity className="p-1">
+			<TouchableOpacity
+				onPress={() => router.push("/support")}
+				className="p-1">
 				<MaterialCommunityIcons
 					name="help-circle-outline"
 					size={28}

@@ -30,9 +30,12 @@ const SearchOrgNW = ({
 
 	const handleAddNewItem = () => {
 		if (showRegisteredItems) {
-			// From Registered Items view - go to Register an item
-			console.log("Navigate to Register an Item");
-			router.push("/register-item");
+			// From Registered Items view - go to Add tab with Register item flow
+			console.log("Navigate to Add tab with registerItem action");
+			router.push({
+				pathname: "/(tabs)/add",
+				params: { action: "registerItem" },
+			});
 		} else {
 			// From Search view - go to Add tab to show the modal
 			console.log("Navigate to Add tab with reportLost action");

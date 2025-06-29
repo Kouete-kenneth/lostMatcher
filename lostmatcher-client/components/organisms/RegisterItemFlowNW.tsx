@@ -126,6 +126,27 @@ export default function RegisterItemFlowNW({
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
+	// Reset form data to initial state
+	const resetFormData = () => {
+		setFormData({
+			image: null,
+			name: "",
+			category: "",
+			description: "",
+			currentLocation: "",
+			dateRegistered: new Date(),
+			contactInfo: "",
+			color: "",
+			size: "",
+			material: "",
+			serialNumber: "",
+			value: "",
+		});
+		setCurrentStep(1);
+		setExpandedSection(null);
+		closeAllDropdowns();
+	};
+
 	// Dropdown handlers
 	const toggleDropdown = (dropdownId: string) => {
 		setOpenDropdown(openDropdown === dropdownId ? null : dropdownId);
@@ -290,6 +311,8 @@ export default function RegisterItemFlowNW({
 	const handleSubmit = () => {
 		if (canProceed()) {
 			onComplete(formData);
+			// Reset form after successful submission
+			resetFormData();
 		} else {
 			Alert.alert(
 				"Error",

@@ -23,7 +23,10 @@ const RegisterItemScreen = () => {
 		<ScreenTemplateNW
 			title="Register an Item"
 			showBackButton={true}
-			onBackPress={handleCancel}>
+			scrollable={false}
+			contentClassName="px-0 py-0"
+			onBackPress={handleCancel}
+			keyboardAvoiding={true}>
 			<RegisterItemFlowNW
 				onComplete={handleComplete}
 				onCancel={handleCancel}

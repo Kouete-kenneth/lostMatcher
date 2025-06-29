@@ -1,5 +1,4 @@
 import React from "react";
-import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 import ScreenTemplateNW from "@/components/templates/ScreenTemplateNW";
 import ReportLostItemFlowNW from "@/components/organisms/ReportLostItemFlowNW";
@@ -10,9 +9,19 @@ const ReportLostScreen = () => {
 	const handleComplete = (data: any) => {
 		// TODO: Submit to API
 		console.log("Report Lost:", data);
-		Alert.alert("Success", "Lost item reported successfully!", [
-			{ text: "OK", onPress: () => router.back() },
-		]);
+
+		// Navigate to search results with the lost item data
+		router.push({
+			pathname: "/search-results",
+			params: {
+				lostItemId: data.id || `lost_${Date.now()}`,
+				itemName: data.name || "Your Lost Item",
+				// Pass other relevant data for the search
+				description: data.description,
+				category: data.category,
+				image: data.image,
+			},
+		});
 	};
 
 	const handleCancel = () => {
@@ -23,7 +32,8 @@ const ReportLostScreen = () => {
 		<ScreenTemplateNW
 			title="Report Lost Item"
 			showBackButton={true}
-			onBackPress={handleCancel}>
+			onBackPress={handleCancel}
+			keyboardAvoiding={true}>
 			<ReportLostItemFlowNW
 				onComplete={handleComplete}
 				onCancel={handleCancel}

@@ -23,7 +23,10 @@ const ReportFoundScreen = () => {
 		<ScreenTemplateNW
 			title="Report Found Item"
 			showBackButton={true}
-			onBackPress={handleCancel}>
+			scrollable
+			onBackPress={handleCancel}
+			contentClassName="px-0 py-0"
+			keyboardAvoiding={true}>
 			<ReportFoundItemFlowNW
 				onComplete={handleComplete}
 				onCancel={handleCancel}

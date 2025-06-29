@@ -2,15 +2,14 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
 import { HapticTab } from "@/components/globals/HapticTab";
-import { CustomAddTabButton } from "@/components/globals/CustomAddTabButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import CircularPlusIconNW from "@/components/atoms/CircularPlusIconNW";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { addTabEvents, ADD_TAB_PRESSED } from "@/lib/addTabEvents";
+import { CustomAddTabButton } from "@/components/globals/CustomAddTabButton";
+import { ADD_TAB_PRESSED, addTabEvents } from "@/lib/addTabEvents";
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();

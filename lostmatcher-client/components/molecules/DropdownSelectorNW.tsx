@@ -87,17 +87,9 @@ export default function DropdownSelectorNW({
 								</Text>
 							</>
 						) : (
-							<>
-								<Ionicons
-									name="chevron-down-outline"
-									size={20}
-									color="#9CA3AF"
-									style={{ marginRight: 12 }}
-								/>
-								<Text className="text-base text-gray-500">
-									{placeholder}
-								</Text>
-							</>
+							<Text className="text-base text-gray-500">
+								{placeholder}
+							</Text>
 						)}
 					</View>
 					<Ionicons

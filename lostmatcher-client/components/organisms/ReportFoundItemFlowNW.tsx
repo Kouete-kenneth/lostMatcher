@@ -127,6 +127,27 @@ export default function ReportFoundItemFlowNW({
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
+	// Reset form data to initial state
+	const resetFormData = () => {
+		setFormData({
+			image: null,
+			name: "",
+			category: "",
+			description: "",
+			foundLocation: "",
+			dateFound: new Date(),
+			timeFound: new Date(),
+			currentLocation: "",
+			contactInfo: "",
+			color: "",
+			size: "",
+			material: "",
+		});
+		setCurrentStep(1);
+		setExpandedSection(null);
+		closeAllDropdowns();
+	};
+
 	// Dropdown handlers
 	const toggleDropdown = (dropdownId: string) => {
 		setOpenDropdown(openDropdown === dropdownId ? null : dropdownId);
@@ -290,6 +311,8 @@ export default function ReportFoundItemFlowNW({
 	const handleSubmit = () => {
 		if (canProceed()) {
 			onComplete(formData);
+			// Reset form after successful submission
+			resetFormData();
 		} else {
 			Alert.alert(
 				"Error",

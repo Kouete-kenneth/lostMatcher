@@ -7,12 +7,15 @@ import WelcomeUserSectionNW from "@/components/molecules/WelcomeUserSectionNW";
 import MetricsSectionNW from "@/components/molecules/MetricsSectionNW";
 import ActionButtonsGridNW from "@/components/molecules/ActionButtonsGridNW";
 import NotificationsSectionNW from "@/components/molecules/NotificationsSectionNW";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 interface HomeScreenProps {
 	className?: string;
 }
 
 const HomeScreenNW = ({ className }: HomeScreenProps) => {
+	const { unreadCount } = useNotifications();
+
 	return (
 		<SafeAreaView
 			className={cn("flex-1 bg-primary-500", className)}
@@ -23,7 +26,7 @@ const HomeScreenNW = ({ className }: HomeScreenProps) => {
 				showBackButton={false}
 				showMenuButton={true}
 				showNotificationButton={true}
-				notificationCount={5}
+				notificationCount={unreadCount}
 				className="bg-primary-500"
 				userName="Alice Taylor"
 			/>

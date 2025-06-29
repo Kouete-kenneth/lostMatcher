@@ -1,34 +1,36 @@
-import React from "react";
-import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import HeaderNW from "@/components/molecules/HeaderNW";
+import React, { useState } from "react";
+import { View, Keyboard, TouchableWithoutFeedback } from "react-native";
+import { ScreenTemplateNW } from "@/components";
+import FeedbackFormOrganism from "@/components/organisms/FeedbackFormOrganism";
+import FeedbackSuccessNW from "@/components/molecules/FeedbackSuccessNW";
+import { useRouter } from "expo-router";
 
 const FeedbackScreen = () => {
+	const [success, setSuccess] = useState(false);
+	const router = useRouter();
 	return (
-		<SafeAreaView
-			className="flex-1 bg-primary-500"
-			edges={["top", "left", "right"]}>
-			{/* Header */}
-			<HeaderNW
-				title="Feedback"
-				showBackButton={false}
-				showMenuButton={true}
-				showNotificationButton={true}
-				notificationCount={0}
-				className="bg-primary-500"
-				userName="Alice Taylor"
-			/>
-
-			{/* Content */}
-			<View className="flex-1 justify-center items-center bg-gray-50">
-				<Text className="text-xl font-semibold text-gray-800 text-center mb-4">
-					Feedback
-				</Text>
-				<Text className="text-gray-600 text-center">
-					Your feedback helps us improve the LostMatcher experience.
-				</Text>
-			</View>
-		</SafeAreaView>
+		<ScreenTemplateNW
+			title="Feedback"
+			showBackButton={true}
+			onBackPress={() => router.back()}
+			scrollable={false}
+			contentClassName="px-0 py-0">
+			<TouchableWithoutFeedback
+				onPress={Keyboard.dismiss}
+				accessible={false}>
+				<View className="flex-1 items-center bg-gray-50 px-4 py-8">
+					{success ? (
+						<FeedbackSuccessNW
+							onDismiss={() => setSuccess(false)}
+						/>
+					) : (
+						<FeedbackFormOrganism
+							onSuccess={() => setSuccess(true)}
+						/>
+					)}
+				</View>
+			</TouchableWithoutFeedback>
+		</ScreenTemplateNW>
 	);
 };
 

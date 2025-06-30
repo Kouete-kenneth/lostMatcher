@@ -16,6 +16,8 @@ import "../global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import OnboardingHeaderNW from "../components/atoms/OnboardingHeaderNW";
 
 function RootLayoutNav() {
 	const colorScheme = useColorScheme();
@@ -99,6 +101,33 @@ function RootLayoutNav() {
 							name="profile"
 							options={{ headerShown: false }}
 						/>
+						<Stack.Screen
+							name="admin"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="onboarding"
+							options={{
+								headerShown: false,
+								header: () => <OnboardingHeaderNW />, // Use the custom header component
+							}}
+						/>
+						<Stack.Screen
+							name="login"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="signup"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="verify-email"
+							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="forgot-password"
+							options={{ headerShown: false }}
+						/>
 						<Stack.Screen name="+not-found" />
 					</Stack>
 				</ThemeProvider>
@@ -124,9 +153,11 @@ export default function RootLayout() {
 
 	return (
 		<SafeAreaProvider>
-			<NotificationProvider>
-				<RootLayoutNav />
-			</NotificationProvider>
+			<AuthProvider>
+				<NotificationProvider>
+					<RootLayoutNav />
+				</NotificationProvider>
+			</AuthProvider>
 		</SafeAreaProvider>
 	);
 }

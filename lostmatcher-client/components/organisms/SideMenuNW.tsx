@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { cn } from "@/lib/utils";
 import AvatarNW from "@/components/atoms/AvatarNW";
+import { useRouter } from "expo-router";
 
 interface MenuItem {
 	id: string;
@@ -16,6 +17,7 @@ interface SideMenuNWProps {
 	userName?: string;
 	userAvatar?: string;
 	className?: string;
+	isAdmin?: boolean;
 }
 
 const SideMenuNW = ({
@@ -24,14 +26,16 @@ const SideMenuNW = ({
 	userName = "Alice Taylor",
 	userAvatar,
 	className,
+	isAdmin = false,
 }: SideMenuNWProps) => {
+	const router = useRouter();
 	const menuItems: MenuItem[] = [
 		{
 			id: "profile",
 			icon: "👤",
 			label: "Profile",
 			onPress: () => {
-				console.log("Navigate to Profile");
+				router.push("/profile");
 				onClose();
 			},
 		},
@@ -49,20 +53,33 @@ const SideMenuNW = ({
 			icon: "💬",
 			label: "Support",
 			onPress: () => {
-				console.log("Navigate to Support");
-				onClose();
-			},
-		},
-		{
-			id: "logout",
-			icon: "🚪",
-			label: "Logout",
-			onPress: () => {
-				console.log("Logout");
+				router.push("/support");
 				onClose();
 			},
 		},
 	];
+
+	if (isAdmin) {
+		menuItems.unshift({
+			id: "admin",
+			icon: "🛠️",
+			label: "Admin Panel",
+			onPress: () => {
+				router.push("/admin/dashboard");
+				onClose();
+			},
+		});
+	}
+
+	menuItems.push({
+		id: "logout",
+		icon: "🚪",
+		label: "Logout",
+		onPress: () => {
+			console.log("Logout");
+			onClose();
+		},
+	});
 
 	return (
 		<Modal

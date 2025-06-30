@@ -10,9 +10,12 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { CustomAddTabButton } from "@/components/globals/CustomAddTabButton";
 import { ADD_TAB_PRESSED, addTabEvents } from "@/lib/addTabEvents";
+import { useRouter } from "expo-router";
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
+	const router = useRouter();
+	const isAdmin = true; // TODO: Replace with real role check
 
 	return (
 		<Tabs
@@ -108,6 +111,7 @@ export default function TabLayout() {
 					),
 				}}
 			/>
+			{/* Removed admin tab from tab bar. Admin Panel will be accessible from the home menu only. */}
 		</Tabs>
 	);
 }

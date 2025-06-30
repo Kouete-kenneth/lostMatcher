@@ -117,6 +117,7 @@ const HeaderNW = ({
 				onClose={handleMenuClose}
 				userName={userName}
 				userAvatar={userAvatar}
+				isAdmin={true} // TODO: Replace with real admin check
 			/>
 		</>
 	);

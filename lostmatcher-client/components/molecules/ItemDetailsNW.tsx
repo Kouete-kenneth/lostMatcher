@@ -96,11 +96,18 @@ export default function ItemDetailsNW({ item, type }: ItemDetailsProps) {
 							</Text>
 						)}
 					</>
-				) : (
-					<Text className="text-sm text-gray-500 italic">
-						Available after admin approval
-					</Text>
-				)}
+				) : item.finder && (
+					<>
+						<Text className="text-sm font-medium text-gray-600 mb-1">
+							{item.finder.name}
+						</Text>
+						{item.finder.town && (
+							<Text className="text-sm text-gray-600">
+								Town: {item.finder.town}
+							</Text>
+						)}
+					</>
+				) }
 			</View>
 		</View>
 	);

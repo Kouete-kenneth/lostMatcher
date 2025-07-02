@@ -33,7 +33,10 @@ const WelcomeScreenNW = () => {
 				router.push("/onboarding"); // Go to onboarding if not complete
 			}
 		} catch (error) {
-			console.error("Navigation error:", error);
+			console.warn(
+				"Navigation error (message only):",
+				error instanceof Error ? error.message : "Unknown error"
+			);
 			// Fallback to onboarding if there's an error
 			router.push("/onboarding");
 		}

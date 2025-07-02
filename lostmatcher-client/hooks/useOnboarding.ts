@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/contexts/AuthContext";
+import { api } from "@/lib/api";
 
 const ONBOARDING_KEY = "hasCompletedOnboarding";
 
 export function useOnboarding() {
+	const { isAuthenticated, user, refreshUser } = useAuth();
 	const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<
 		boolean | null
 	>(null);
@@ -11,13 +14,19 @@ export function useOnboarding() {
 
 	useEffect(() => {
 		checkOnboardingStatus();
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isAuthenticated, user]);
 
 	const checkOnboardingStatus = async () => {
+		setIsLoading(true);
 		try {
-			const value = await AsyncStorage.getItem(ONBOARDING_KEY);
-			setHasCompletedOnboarding(value === "true");
-		} catch (error) {
+			if (isAuthenticated && user) {
+				setHasCompletedOnboarding(!!user.onboardingComplete);
+			} else {
+				const value = await AsyncStorage.getItem(ONBOARDING_KEY);
+				setHasCompletedOnboarding(value === "true");
+			}
+		} catch {
 			setHasCompletedOnboarding(false);
 		} finally {
 			setIsLoading(false);
@@ -26,16 +35,21 @@ export function useOnboarding() {
 
 	const markOnboardingComplete = async () => {
 		try {
-			await AsyncStorage.setItem(ONBOARDING_KEY, "true");
+			if (isAuthenticated) {
+				await api.updateMe({ onboardingComplete: true });
+				await refreshUser();
+			} else {
+				await AsyncStorage.setItem(ONBOARDING_KEY, "true");
+			}
 			setHasCompletedOnboarding(true);
-		} catch (error) {}
+		} catch {}
 	};
 
 	const resetOnboarding = async () => {
 		try {
 			await AsyncStorage.removeItem(ONBOARDING_KEY);
 			setHasCompletedOnboarding(false);
-		} catch (error) {}
+		} catch {}
 	};
 
 	return {

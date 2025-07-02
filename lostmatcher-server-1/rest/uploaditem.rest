@@ -1,6 +1,6 @@
-POST http://localhost:5001/api-v1/items/upload
+POST http://localhost:5001/api-v1/items
 Content-Type: multipart/form-data; boundary=boundary
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTA2MzcwNzcsImV4cCI6MTc1MDYzODg3NywidHlwZSI6ImFjY2VzcyJ9.OO_8jsCTDhdEVtC7e4whx7CHalnv0oGZWkIz26RqJPM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0NTE1NzIsImV4cCI6MTc1MTQ1MzM3MiwidHlwZSI6ImFjY2VzcyJ9.JGcz9dGUXerSh5vSy3e-pzdE8GV1GJL__wPCMu3xTk8
 
 --boundary
 Content-Disposition: form-data; name="file"; filename="image4.jpg"
@@ -28,3 +28,5 @@ Content-Disposition: form-data; name="attributes"
 
 {"color": "blue", "size": "medium"}
 --boundary--
+
+

@@ -1,39 +1,38 @@
-// import express from 'express';
-// import {
-//     createItemController,
-//     getItemByIdController,
-//     updateItemByIdController,
-//     deleteItemByIdController,
-//     getAllItemsController,
-//     searchItemsByDescriptionController
-// } from '../controllers/item.controller';
-// import{
-//     createItem,
-//     updateItem,
-//     searchItemsByDescription,
-//     getItem,
-//     deleteItem
-//   } from '../validations/item.validation'
+import express from "express";
+import multer from "multer";
+import type { RequestHandler } from "express";
+import {
+	createItemController,
+	getAllItemsController,
+	getItemByIdController,
+	updateItemByIdController,
+	deleteItemByIdController,
+} from "../controllers/item.controller";
 // import validate from '../middlewares/validate';
+// import { createItem, updateItem, getItem, deleteItem } from '../validations/item.validation';
+import { auth } from "../middlewares/auth";
 
-// const router = express.Router();
+const router = express.Router();
+const upload = multer();
 
-// // Route to create a new item
-// router.post('/',validate(createItem), createItemController);
+// Route to create a new item
+router.post(
+	"/",
+	auth(),
+	upload.single("file"),
+	createItemController as RequestHandler
+);
 
-// // Route to get all items
-// router.get('/',getAllItemsController);
+// Route to get all items
+router.get("/", getAllItemsController as RequestHandler);
 
-// // Route to get a specific item by ID
-// router.get('/itemdescription',validate(searchItemsByDescription), searchItemsByDescriptionController);
+// Route to get a specific item by ID
+router.get("/:id", getItemByIdController as RequestHandler);
 
-// // Route to get a specific item by ID
-// router.get('/:id',validate(getItem), getItemByIdController);
+// Route to update an item by ID
+router.put("/:id", auth(), updateItemByIdController as RequestHandler);
 
-// // Route to update an item by ID
-// router.put('/:id',validate(updateItem), updateItemByIdController);
+// Route to delete an item by ID
+router.delete("/:id", auth(), deleteItemByIdController as RequestHandler);
 
-// // Route to delete an item by ID
-// router.delete('/:id',validate(deleteItem), deleteItemByIdController);
-
-// export default router;
+export default router;

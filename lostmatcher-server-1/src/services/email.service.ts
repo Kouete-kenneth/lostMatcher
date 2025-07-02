@@ -1,25 +1,36 @@
-import nodemailer from 'nodemailer';
-import config from '../config/env.config';
-import logger from '../config/logging.config';
+import nodemailer from "nodemailer";
+import config from "../config/env.config";
+import logger from "../config/logging.config";
 
 let transport: nodemailer.Transporter;
 
 transport = nodemailer.createTransport(config.email.smtp);
-transport.verify()
-  .then(() => {
-    logger.info('Connected to email server: ' + config.email.smtp.auth.user);
-  })
-  .catch((error: any) => {
-    if (error.code === 'EAUTH' && error.responseCode === 535) {
-      logger.warn('Authentication error: Incorrect email address or password. Please double-check your email server credentials.');
-    } else if (error.code === 'EAUTH' && error.responseCode === 534) {
-      logger.warn('Authentication error: Incorrect email address. Please double-check your email server credentials.');
-    } else if (error.code === 'EAUTH' && error.responseCode === 535) {
-      logger.warn('Authentication error: Incorrect password. Please double-check your email server credentials.');
-    } else {
-      logger.warn('Connection error: Unable to connect to email server. Make sure you have configured the SMTP options in .env.');
-    }
-  });
+transport
+	.verify()
+	.then(() => {
+		logger.info(
+			"Connected to email server: " + config.email.smtp.auth.user
+		);
+	})
+	.catch((error: any) => {
+		if (error.code === "EAUTH" && error.responseCode === 535) {
+			logger.warn(
+				"Authentication error: Incorrect email address or password. Please double-check your email server credentials."
+			);
+		} else if (error.code === "EAUTH" && error.responseCode === 534) {
+			logger.warn(
+				"Authentication error: Incorrect email address. Please double-check your email server credentials."
+			);
+		} else if (error.code === "EAUTH" && error.responseCode === 535) {
+			logger.warn(
+				"Authentication error: Incorrect password. Please double-check your email server credentials."
+			);
+		} else {
+			logger.warn(
+				"Connection error: Unable to connect to email server. Make sure you have configured the SMTP options in .env."
+			);
+		}
+	});
 
 /**
  * Send an email
@@ -28,21 +39,29 @@ transport.verify()
  * @param {string} text
  * @returns {Promise<void>}
  */
-const sendEmail = async (to: string, subject: string, text: string): Promise<void> => {
-  const msg = { from: config.email.from, to, subject, html: text };
-  await transport.sendMail(msg);
+const sendEmail = async (
+	to: string,
+	subject: string,
+	text: string
+): Promise<void> => {
+	const msg = { from: config.email.from, to, subject, html: text };
+	await transport.sendMail(msg);
 };
 
 /**
- * Send an email from a client 
+ * Send an email from a client
  * @param {string} from
  * @param {string} subject
  * @param {string} text
  * @returns {Promise<void>}
  */
-const sendEmailFrom = async (from: string, subject: string, text: string): Promise<void> => {
-  const msg = { from, to: config.email.from, subject, html: text };
-  await transport.sendMail(msg);
+const sendEmailFrom = async (
+	from: string,
+	subject: string,
+	text: string
+): Promise<void> => {
+	const msg = { from, to: config.email.from, subject, html: text };
+	await transport.sendMail(msg);
 };
 
 /**
@@ -51,11 +70,14 @@ const sendEmailFrom = async (from: string, subject: string, text: string): Promi
  * @param {string} token
  * @returns {Promise<void>}
  */
-const sendResetPasswordEmail = async (to: string, token: string): Promise<void> => {
-  try {
-    const subject = 'Reset password';
-    const resetPasswordUrl = `https://emailpasswordutilities.vercel.app/verify-reset/reset-password/new-password?token=${token}&&email=${to}`;
-    const text = `
+const sendResetPasswordEmail = async (
+	to: string,
+	token: string
+): Promise<void> => {
+	try {
+		const subject = "Reset password";
+		const resetPasswordUrl = `https://emailpasswordutilities.vercel.app/verify-reset/reset-password/new-password?token=${token}&&email=${to}`;
+		const text = `
       <div style="font-family: Arial, sans-serif; color: #222;">
       <h2 style="color: #2d8cf0;">Reset Your Password</h2>
       <p>
@@ -80,15 +102,18 @@ const sendResetPasswordEmail = async (to: string, token: string): Promise<void> 
       <p>Happy exploring!</p>
       <p style="margin-top: 32px;">
         Best regards,<br>
-        <strong>FindIt Team</strong>
+        <strong>Lostmather Team</strong>
       </p>
       </div>
     `;
-    await sendEmail(to, subject, text);
-    logger.info('email send succesfully');
-  } catch (error) {
-    logger.error('an error occured while sending the reset password email:', error);
-  }
+		await sendEmail(to, subject, text);
+		logger.info("email send succesfully");
+	} catch (error) {
+		logger.error(
+			"an error occured while sending the reset password email:",
+			error
+		);
+	}
 };
 
 /**
@@ -97,39 +122,43 @@ const sendResetPasswordEmail = async (to: string, token: string): Promise<void> 
  * @param {string} token
  * @returns {Promise<void>}
  */
-const sendVerificationEmail = async (to: string, token: string): Promise<void> => {
-  const subject = 'Email Verification';
-  const verificationEmailUrl = `https://emailpasswordutilities.vercel.app/verify-reset/verify?token=${token}`;
-  const text = `
+const sendVerificationEmail = async (
+	to: string,
+	code: string
+): Promise<void> => {
+	const subject = "Email Verification";
+	const text = `
     <div style="font-family: Arial, sans-serif; color: #222;">
       <h2 style="color: #2d8cf0;">Verify Your Email Address</h2>
       <p>
         Dear user,
       </p>
       <p>
-        Thank you for registering with FindIt! To verify your email address and activate your account, please click the button below:
+        Thank you for registering with LostMatcher! To verify your email address and activate your account, please use the verification code below:
       </p>
-      <p style="text-align: center; margin: 24px 0;">
-        <a href="${verificationEmailUrl}" style="background: #2d8cf0; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
-          Verify Email
-        </a>
-      </p>
+      <div style="text-align: center; margin: 32px 0; padding: 24px; background: #f8f9fa; border-radius: 12px; border: 2px solid #2d8cf0;">
+        <p style="margin: 0; font-size: 16px; color: #666; margin-bottom: 12px;">Your Verification Code:</p>
+        <p style="margin: 0; font-size: 36px; font-weight: bold; color: #2d8cf0; letter-spacing: 8px; font-family: 'Courier New', monospace;">
+          ${code}
+        </p>
+      </div>
       <p>
-        If the button above does not work, please copy and paste the following link into your browser:<br>
-        <a href="${verificationEmailUrl}">${verificationEmailUrl}</a>
+        Enter this 6-digit code in the LostMatcher mobile app to verify your email address.
+      </p>
+      <p style="color: #e74c3c; font-weight: bold;">
+        This code will expire in 15 minutes for security reasons.
       </p>
       <p>
         If you did not create an account, you can safely ignore this email.
       </p>
       <br>
-      <p>Happy exploring!</p>
       <p style="margin-top: 32px;">
         Best regards,<br>
-        <strong>FindIt Team</strong>
+        <strong>LostMatcher Team</strong>
       </p>
     </div>
   `;
-  await sendEmail(to, subject, text);
+	await sendEmail(to, subject, text);
 };
 
 /**
@@ -138,9 +167,12 @@ const sendVerificationEmail = async (to: string, token: string): Promise<void> =
  * @param {string} token - The confirmation token generated for the user.
  * @returns {Promise<void>} - A Promise that resolves when the email is sent successfully.
  */
-const sendEmailVerificationConfirmationEmail = async (to: string, token: string): Promise<void> => {
-  const subject = 'Email Address Verification Success';
-  const text = `
+const sendEmailVerificationConfirmationEmail = async (
+	to: string,
+	token: string
+): Promise<void> => {
+	const subject = "Email Address Verification Success";
+	const text = `
     <div style="font-family: Arial, sans-serif; color: #222;">
       <h2 style="color: #2d8cf0;">Welcome to FindIt!</h2>
       <p>
@@ -156,18 +188,18 @@ const sendEmailVerificationConfirmationEmail = async (to: string, token: string)
       <p>Happy exploring!</p>
       <p style="margin-top: 32px;">
         Best regards,<br>
-        <strong>FindIt Team</strong>
+        <strong>LostMatcher Team</strong>
       </p>
     </div>
   `;
-  await sendEmail(to, subject, text);
+	await sendEmail(to, subject, text);
 };
 
 export {
-  transport,
-  sendEmailVerificationConfirmationEmail,
-  sendEmail,
-  sendEmailFrom,
-  sendResetPasswordEmail,
-  sendVerificationEmail,
+	transport,
+	sendEmailVerificationConfirmationEmail,
+	sendEmail,
+	sendEmailFrom,
+	sendResetPasswordEmail,
+	sendVerificationEmail,
 };

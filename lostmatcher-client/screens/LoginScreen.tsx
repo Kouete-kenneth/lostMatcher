@@ -52,10 +52,36 @@ const LoginScreen = () => {
 		if (result.success) {
 			router.replace("/(tabs)"); // Navigate to home
 		} else {
-			Alert.alert(
-				"Login Failed",
-				result.error || "Please check your credentials"
-			);
+			// Check if error is related to email verification
+			if (
+				result.error?.includes("verify your email") ||
+				result.error?.includes("email address before logging")
+			) {
+				Alert.alert(
+					"Email Verification Required",
+					"Please verify your email address before logging in. Would you like to go to the verification screen?",
+					[
+						{
+							text: "Cancel",
+							style: "cancel",
+						},
+						{
+							text: "Verify Email",
+							onPress: () =>
+								router.push(
+									`/verify-email?email=${encodeURIComponent(
+										formData.email
+									)}`
+								),
+						},
+					]
+				);
+			} else {
+				Alert.alert(
+					"Login Failed",
+					result.error || "Please check your credentials"
+				);
+			}
 		}
 	};
 

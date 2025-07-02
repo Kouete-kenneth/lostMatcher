@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api, ApiError } from "../lib/api";
+import { extractErrorMessage, logError } from "../lib/errorUtils";
 
 // Types
 export interface User {
@@ -7,6 +9,7 @@ export interface User {
 	email: string;
 	name?: string;
 	avatar?: string;
+	onboardingComplete?: boolean;
 	// Add more user fields as needed
 }
 
@@ -40,13 +43,6 @@ export interface AuthContextType extends AuthState {
 // Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Storage keys
-const STORAGE_KEYS = {
-	TOKEN: "auth_token",
-	USER: "auth_user",
-	REGISTRATION_STATUS: "registration_status",
-};
-
 // Provider
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -65,32 +61,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const initializeAuth = async () => {
 		try {
-			const [token, userData] = await Promise.all([
-				AsyncStorage.getItem(STORAGE_KEYS.TOKEN),
-				AsyncStorage.getItem(STORAGE_KEYS.USER),
-			]);
-
-			if (token && userData) {
-				const user = JSON.parse(userData);
-				setState((prev) => ({
-					...prev,
-					user,
-					isAuthenticated: true,
-					isRegistered: true,
-					isLoading: false,
-				}));
+			const token = await AsyncStorage.getItem("token");
+			if (token) {
+				try {
+					const user = await api.getMe();
+					setState((prev) => ({
+						...prev,
+						user,
+						isAuthenticated: true,
+						isRegistered: true,
+						isLoading: false,
+					}));
+					await AsyncStorage.setItem(
+						"auth_user",
+						JSON.stringify(user)
+					);
+				} catch {
+					setState((prev) => ({ ...prev, isLoading: false }));
+				}
 			} else {
-				setState((prev) => ({
-					...prev,
-					isLoading: false,
-				}));
+				setState((prev) => ({ ...prev, isLoading: false }));
 			}
 		} catch (error) {
-			console.error("Auth initialization error:", error);
-			setState((prev) => ({
-				...prev,
-				isLoading: false,
-			}));
+			logError("Auth initialization error", error);
+			setState((prev) => ({ ...prev, isLoading: false }));
 		}
 	};
 
@@ -100,34 +94,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	): Promise<{ success: boolean; error?: string }> => {
 		try {
 			setState((prev) => ({ ...prev, isLoading: true }));
-
-			// TODO: Replace with actual API call
-			const mockApiCall = new Promise<{ token: string; user: User }>(
-				(resolve, reject) => {
-					setTimeout(() => {
-						if (
-							email === "test@example.com" &&
-							password === "password"
-						) {
-							resolve({
-								token: "mock_token_123",
-								user: { id: "1", email, name: "Test User" },
-							});
-						} else {
-							reject(new Error("Invalid credentials"));
-						}
-					}, 1000);
-				}
-			);
-
-			const { token, user } = await mockApiCall;
-
-			// Store auth data
-			await Promise.all([
-				AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token),
-				AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user)),
-			]);
-
+			const { user, tokens } = await api.login({ email, password });
+			await AsyncStorage.setItem("token", tokens.access.token);
+			await AsyncStorage.setItem("auth_user", JSON.stringify(user));
 			setState((prev) => ({
 				...prev,
 				user,
@@ -135,13 +104,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				isRegistered: true,
 				isLoading: false,
 			}));
-
 			return { success: true };
-		} catch (error) {
+		} catch (error: any) {
 			setState((prev) => ({ ...prev, isLoading: false }));
+
+			// Use utility function to extract clean error message
+			const errorMessage = extractErrorMessage(error);
+
+			// Safe logging
+			logError("Login failed", error);
+
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : "Login failed",
+				error: errorMessage,
 			};
 		}
 	};
@@ -153,35 +128,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	): Promise<{ success: boolean; error?: string }> => {
 		try {
 			setState((prev) => ({ ...prev, isLoading: true }));
-
-			// TODO: Replace with actual API call
-			const mockApiCall = new Promise<{ token: string; user: User }>(
-				(resolve, reject) => {
-					setTimeout(() => {
-						if (email && password) {
-							resolve({
-								token: "mock_token_456",
-								user: {
-									id: "2",
-									email,
-									name: name || "New User",
-								},
-							});
-						} else {
-							reject(new Error("Registration failed"));
-						}
-					}, 1000);
-				}
-			);
-
-			const { token, user } = await mockApiCall;
-
-			// Store auth data
-			await Promise.all([
-				AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token),
-				AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user)),
-			]);
-
+			const { user, tokens } = await api.register({
+				email,
+				password,
+				name,
+			});
+			await AsyncStorage.setItem("token", tokens.access.token);
+			await AsyncStorage.setItem("auth_user", JSON.stringify(user));
 			setState((prev) => ({
 				...prev,
 				user,
@@ -189,16 +142,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				isRegistered: true,
 				isLoading: false,
 			}));
-
+			console.log("User registered successfully:", user);
 			return { success: true };
-		} catch (error) {
+		} catch (error: any) {
 			setState((prev) => ({ ...prev, isLoading: false }));
+
+			// Use utility function to extract clean error message
+			const errorMessage = extractErrorMessage(error);
+
+			// Safe logging
+			logError("Registration failed", error);
+
 			return {
 				success: false,
-				error:
-					error instanceof Error
-						? error.message
-						: "Registration failed",
+				error: errorMessage,
 			};
 		}
 	};
@@ -206,13 +163,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const logout = async () => {
 		try {
 			setState((prev) => ({ ...prev, isLoading: true }));
-
-			// Clear stored data
-			await Promise.all([
-				AsyncStorage.removeItem(STORAGE_KEYS.TOKEN),
-				AsyncStorage.removeItem(STORAGE_KEYS.USER),
-			]);
-
+			await api.logout();
+			await AsyncStorage.removeItem("auth_user");
 			setState({
 				user: null,
 				isAuthenticated: false,
@@ -220,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				isRegistered: false,
 			});
 		} catch (error) {
-			console.error("Logout error:", error);
+			logError("Logout error", error);
 			setState((prev) => ({ ...prev, isLoading: false }));
 		}
 	};
@@ -228,62 +180,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const checkRegistration = async (
 		email: string
 	): Promise<{ isRegistered: boolean; error?: string }> => {
-		try {
-			// TODO: Replace with actual API call
-			const mockApiCall = new Promise<{ isRegistered: boolean }>(
-				(resolve) => {
-					setTimeout(() => {
-						// Mock logic: consider user registered if email contains "@"
-						resolve({ isRegistered: email.includes("@") });
-					}, 500);
-				}
-			);
-
-			const { isRegistered } = await mockApiCall;
-			return { isRegistered };
-		} catch (error) {
-			return {
-				isRegistered: false,
-				error: error instanceof Error ? error.message : "Check failed",
-			};
-		}
+		// Not needed with new API, always return false (registration handled by backend)
+		return { isRegistered: false };
 	};
 
 	const forgotPassword = async (
 		email: string
 	): Promise<{ success: boolean; error?: string }> => {
 		try {
-			// TODO: Replace with actual API call
-			const mockApiCall = new Promise<void>((resolve, reject) => {
-				setTimeout(() => {
-					if (email.includes("@")) {
-						resolve();
-					} else {
-						reject(new Error("Invalid email"));
-					}
-				}, 1000);
-			});
-
-			await mockApiCall;
+			await api.forgotPassword({ email });
 			return { success: true };
 		} catch (error) {
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : "Reset failed",
+				error:
+					error instanceof ApiError ? error.message : "Reset failed",
 			};
 		}
 	};
 
 	const refreshUser = async () => {
 		try {
-			const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
-			if (!token) return;
-
-			// TODO: Replace with actual API call to refresh user data
-			// const user = await fetchUserProfile(token);
-			// setState(prev => ({ ...prev, user }));
+			const user = await api.getMe();
+			setState((prev) => ({ ...prev, user }));
+			await AsyncStorage.setItem("auth_user", JSON.stringify(user));
 		} catch (error) {
-			console.error("Refresh user error:", error);
+			logError("Refresh user error", error);
 		}
 	};
 

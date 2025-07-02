@@ -1,0 +1,27 @@
+### Get matches for a lost report
+GET http://localhost:5001/api-v1/match-records/lost-report/68650a7da7c540af1eb2e413
+Content-Type: application/json
+
+###
+
+### Update match status
+PUT http://localhost:5001/api-v1/match-records/507f1f77bcf86cd799439012/status
+Content-Type: application/json
+
+{
+    "status": "claim_approved"
+}
+
+###
+
+### Get matches by status
+GET http://localhost:5001/api-v1/match-records/status/pending_claim
+Content-Type: application/json
+
+###
+
+### Get specific match by ID
+GET http://localhost:5001/api-v1/match-records/507f1f77bcf86cd799439013
+Content-Type: application/json
+
+###

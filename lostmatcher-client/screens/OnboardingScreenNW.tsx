@@ -23,7 +23,7 @@ export default function OnboardingScreenNW() {
 
 	const handleFinish = async () => {
 		await markOnboardingComplete();
-		if (!isAuthenticated) {
+		if (isAuthenticated) {
 			router.replace("/(tabs)"); // Go to home if logged in
 		} else {
 			router.replace("/login"); // Go to login if not logged in

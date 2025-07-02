@@ -1,0 +1,62 @@
+# Production Dockerfile optimized for Render with better resource management
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies needed for OpenCV
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    libgomp1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.minimal.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.minimal.txt
+
+# Copy application code
+COPY app.py .
+
+# Create necessary directories
+RUN mkdir -p uploads
+
+# Set environment variables for production
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_ENV=production
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Memory and performance settings
+ENV MALLOC_ARENA_MAX=2
+ENV OPENCV_LOG_LEVEL=ERROR
+
+# Use Render's PORT or default to 10000
+ENV PORT=10000
+
+# Expose the port
+EXPOSE $PORT
+
+# Health check with better timeout
+HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=2 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Start with gunicorn - optimized settings for memory management
+CMD exec gunicorn \
+    --bind 0.0.0.0:$PORT \
+    --workers 1 \
+    --threads 2 \
+    --timeout 300 \
+    --keep-alive 2 \
+    --max-requests 100 \
+    --max-requests-jitter 10 \
+    --worker-class gthread \
+    --worker-tmp-dir /dev/shm \
+    --log-level info \
+    --access-logfile - \
+    --error-logfile - \
+    app:app

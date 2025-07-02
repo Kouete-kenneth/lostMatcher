@@ -1,0 +1,38 @@
+POST http://localhost:5001/api-v1/found
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0NTcyNDgsImV4cCI6MTc1MTQ1OTA0OCwidHlwZSI6ImFjY2VzcyJ9.UkKZB4XDRpKrcwQ8g0FBM1ojNgJHJfyynG5R5GcgBy0
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="image4.jpg"
+Content-Type: image/jpeg
+
+< ./image4.jpg
+--boundary
+Content-Disposition: form-data; name="itemDetails[name]"
+
+Blue jacket
+--boundary
+Content-Disposition: form-data; name="itemDetails[description]"
+
+Found at Central Park on March 15th
+--boundary
+Content-Disposition: form-data; name="itemDetails[category]"
+
+clothing
+--boundary
+Content-Disposition: form-data; name="attributes"
+
+{"color": "blue", "size": "medium"}
+--boundary
+Content-Disposition: form-data; name="foundDate"
+
+2024-03-15T00:00:00.000Z
+--boundary
+Content-Disposition: form-data; name="foundLocation"
+
+Central Park
+--boundary
+Content-Disposition: form-data; name="status"
+
+found
+--boundary--

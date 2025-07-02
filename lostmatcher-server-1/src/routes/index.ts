@@ -3,12 +3,18 @@
 import express from "express";
 import authRoute from "./auth.route";
 import userRoutes from "./user.route";
-// import Emailroutes from './email.route';
 import matchRoutes from "./match.route";
 import notificationRoutes from "./notification.route";
 import reviewRoutes from "./review.route";
 import config from "../config/env.config";
 import uploadRoutes from "./itemupload.route";
+import itemsRoutes from "./items.route";
+import foundReportRoutes from "./foundReport.route";
+import lostReportRoutes from "./lostReport.route";
+import matchRecordsRoutes from "./matchRecords.route";
+import manualMatchingRoutes from "./manualMatching.route";
+import testRoutes from "./test.route";
+import periodicSearchRoutes from "./periodicSearch.route";
 
 const Routes = express.Router();
 
@@ -27,53 +33,60 @@ const defaultRoutes = [
 	},
 	{
 		path: "/items",
+		route: itemsRoutes,
+	},
+	{
+		path: "/found",
+		route: foundReportRoutes,
+	},
+	{
+		path: "/lost",
+		route: lostReportRoutes,
+	},
+	{
+		path: "/itemupload",
 		route: uploadRoutes,
 	},
-	// {
-	//   path: '/items',
-	//   route: Itemsroutes,
-	// },
-	// {
-	//   path: '/emails',
-	//   route: Emailroutes,
-	// },
 	{
 		path: "/match",
 		route: matchRoutes,
 	},
-
+	{
+		path: "/match-records",
+		route: matchRecordsRoutes,
+	},
+	{
+		path: "/manual-matching",
+		route: manualMatchingRoutes,
+	},
+	{
+		path: "/periodic-search",
+		route: periodicSearchRoutes,
+	},
 	{
 		path: "/review",
 		route: reviewRoutes,
 	},
-	// {
-	//   path: '/faqs',
-	//   route: FAQRoutes,
-	// },
-	// {
-	//   path: '/history',
-	//   route: historyRoutes,
 ];
 
 const devRoutes: { path: string; route: express.Router }[] = [
 	// routes available only in development mode
-	// Uncomment the following line if you have docsRoute imported
-	// { path: '/docs', route: docsRoute },
+	{
+		path: "/test",
+		route: testRoutes,
+	},
 ];
-//     route: docsRoute,
-//   },
-// ];
-defaultRoutes.forEach(
-	({ path, route }: { path: string; route: express.Router }) => {
-		Routes.use(path, route);
-	}
-);
+
+// Register all default routes
+for (const route of defaultRoutes) {
+	Routes.use(route.path, route.route);
+}
+
+// Register dev routes only in development
 if (config.env === "development") {
-	devRoutes.forEach(
-		({ path, route }: { path: string; route: express.Router }) => {
-			Routes.use(path, route);
-		}
-	);
+	for (const route of devRoutes) {
+		Routes.use(route.path, route.route);
+	}
 }
 
 export default Routes;

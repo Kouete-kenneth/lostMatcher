@@ -1,0 +1,11 @@
+### Manually trigger matching for a lost report
+POST http://localhost:5001/api-v1/manual-matching/lost-report/68650a7da7c540af1eb2e413
+Content-Type: application/json
+
+###
+
+### Manually trigger matching for a found report
+POST http://localhost:5001/api-v1/manual-matching/found-report/507f1f77bcf86cd799439012
+Content-Type: application/json
+
+###

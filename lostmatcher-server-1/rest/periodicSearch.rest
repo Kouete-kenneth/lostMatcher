@@ -1,0 +1,61 @@
+### Periodic Search API Test File
+
+@baseUrl = http://localhost:5001/api-v1
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0NjExMDMsImV4cCI6MTc1MTQ2MjkwMywidHlwZSI6ImFjY2VzcyJ9.-6S4fXRpeSCI7Fh1IdUuxVGtY7p6DqP5gqcHtdL6PIM
+
+### Get periodic search status for user
+GET {{baseUrl}}/periodic-search/status
+Authorization: Bearer {{authToken}}
+
+### Update periodic search settings
+PUT {{baseUrl}}/periodic-search/settings
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "periodicSearchEnabled": true,
+  "matchingThreshold": 25
+}
+
+### Trigger manual periodic searh for authenticated user
+POST {{baseUrl}}/periodic-search/trigger
+Authorization: Bearer {{authToken}}
+
+### Trigger periodic search for specific lost report
+POST {{baseUrl}}/periodic-search/trigger/lost/REPORT_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### Trigger periodic search for specific found report
+POST {{baseUrl}}/periodic-search/trigger/found/REPORT_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### Get service statistics (admin)
+GET {{baseUrl}}/periodic-search/stats
+Authorization: Bearer {{authToken}}
+
+### Update user matching threshold only
+PUT {{baseUrl}}/periodic-search/settings
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "matchingThreshold": 60
+}
+
+### Enable periodic search only
+PUT {{baseUrl}}/periodic-search/settings
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "periodicSearchEnabled": true
+}
+
+### Disable periodic search
+PUT {{baseUrl}}/periodic-search/settings
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "periodicSearchEnabled": false
+}

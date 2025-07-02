@@ -1,0 +1,35 @@
+### Test comparison with actual API response structure
+POST http://localhost:5001/api-v1/test/test-comparison
+Content-Type: application/json
+
+{
+    "features1": {
+        "descriptors": "test_descriptor_1",
+        "descriptors_shape": [30, 128],
+        "keypoints_count": 200,
+        "keypoints": [],
+        "image_shape": [1024, 768]
+    },
+    "features2": {
+        "descriptors": "test_descriptor_2", 
+        "descriptors_shape": [30, 128],
+        "keypoints_count": 150,
+        "keypoints": [],
+        "image_shape": [800, 600]
+    }
+}
+
+###
+
+### Test feature extraction with actual image
+POST http://localhost:5001/api-v1/test/test-extract-features
+Content-Type: multipart/form-data; boundary=boundary1
+
+--boundary1
+Content-Disposition: form-data; name="image"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./img1.jpeg
+--boundary1--
+
+###

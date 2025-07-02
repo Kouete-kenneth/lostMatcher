@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import AuthHeaderNW from "@/components/atoms/AuthHeaderNW";
 import ButtonNW from "@/components/atoms/ButtonNW";
 import LogoNW from "@/components/atoms/LogoNW";
+import { logError } from "@/lib/errorUtils";
 
 const SignUpScreen = () => {
 	const router = useRouter();
@@ -76,12 +77,16 @@ const SignUpScreen = () => {
 		);
 
 		if (result.success) {
-			router.replace("/verify-email"); // Go to email verification screen
+			router.replace(
+				`/verify-email?email=${encodeURIComponent(formData.email)}`
+			); // Go to email verification screen with email parameter
 		} else {
 			Alert.alert(
 				"Registration Failed",
 				result.error || "Please try again"
 			);
+			// Safe logging without exposing stack traces
+			logError("Registration failed", result.error || "Unknown error");
 		}
 	};
 

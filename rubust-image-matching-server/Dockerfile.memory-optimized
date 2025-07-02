@@ -1,0 +1,71 @@
+# Ultra-minimal Docker image for memory-constrained environments
+FROM python:3.9-slim
+
+# Set environment variables for memory optimization
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV MALLOC_MMAP_THRESHOLD_=131072
+ENV MALLOC_TRIM_THRESHOLD_=131072
+ENV MALLOC_TOP_PAD_=131072
+ENV MALLOC_MMAP_MAX_=65536
+
+# Set working directory
+WORKDIR /app
+
+# Install only essential system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create minimal requirements file
+COPY requirements.minimal.txt .
+
+# Install Python dependencies with reduced cache and compile flags
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --no-compile -r requirements.minimal.txt && \
+    pip cache purge
+
+# Copy application code
+COPY app.py .
+
+# Create uploads directory
+RUN mkdir -p uploads
+
+# Set resource limits
+ENV GUNICORN_WORKERS=1
+ENV GUNICORN_THREADS=2
+ENV GUNICORN_WORKER_CONNECTIONS=50
+ENV GUNICORN_MAX_REQUESTS=100
+ENV GUNICORN_MAX_REQUESTS_JITTER=10
+ENV GUNICORN_TIMEOUT=30
+ENV GUNICORN_KEEPALIVE=2
+ENV GUNICORN_PRELOAD=true
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:10000/health || exit 1
+
+# Expose port
+EXPOSE 10000
+
+# Run with optimized Gunicorn settings for low memory
+CMD ["gunicorn", \
+    "--bind", "0.0.0.0:10000", \
+    "--workers", "1", \
+    "--threads", "2", \
+    "--worker-connections", "50", \
+    "--max-requests", "100", \
+    "--max-requests-jitter", "10", \
+    "--timeout", "30", \
+    "--keep-alive", "2", \
+    "--preload", \
+    "--worker-class", "gthread", \
+    "--access-logfile", "-", \
+    "--error-logfile", "-", \
+    "--log-level", "info", \
+    "app:app"]

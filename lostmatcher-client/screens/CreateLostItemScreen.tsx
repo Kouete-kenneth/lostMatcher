@@ -123,7 +123,10 @@ const CreateLostItemScreen: React.FC = () => {
 			alert("Lost item posted successfully!");
 			// router.back();
 		} catch (error) {
-			console.error("Error creating lost item:", error);
+			console.warn(
+				"Error creating lost item (message only):",
+				error instanceof Error ? error.message : "Unknown error"
+			);
 			alert("Failed to post lost item. Please try again.");
 		} finally {
 			setIsLoading(false);

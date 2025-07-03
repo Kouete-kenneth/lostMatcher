@@ -21,9 +21,11 @@ export class MatchingController {
 				return;
 			}
 
-			const matches = await MatchingService.findMatchesForLostReport(
-				lostReportId
-			);
+			const matchingResults =
+				await MatchingService.findMatchesForLostReport(lostReportId);
+
+			// Use combined matches for manual matching
+			const matches = matchingResults.combinedMatches;
 
 			res.status(200).json({
 				success: true,
@@ -38,6 +40,18 @@ export class MatchingController {
 						confidence: match.confidence,
 						matches_count: match.matches_count,
 					})),
+					// Include summary for additional info
+					summary: {
+						imageMatchCount:
+							matchingResults.summary.imageMatchCount,
+						textMatchCount: matchingResults.summary.textMatchCount,
+						combinedMatchCount:
+							matchingResults.summary.combinedMatchCount,
+						hasImageFeatures:
+							matchingResults.summary.hasImageFeatures,
+						hasTextDescription:
+							matchingResults.summary.hasTextDescription,
+					},
 				},
 			});
 		} catch (error: any) {
@@ -68,9 +82,11 @@ export class MatchingController {
 				return;
 			}
 
-			const matches = await MatchingService.findMatchesForFoundReport(
-				foundReportId
-			);
+			const matchingResults =
+				await MatchingService.findMatchesForFoundReport(foundReportId);
+
+			// Use combined matches for manual matching
+			const matches = matchingResults.combinedMatches;
 
 			res.status(200).json({
 				success: true,
@@ -85,6 +101,18 @@ export class MatchingController {
 						confidence: match.confidence,
 						matches_count: match.matches_count,
 					})),
+					// Include summary for additional info
+					summary: {
+						imageMatchCount:
+							matchingResults.summary.imageMatchCount,
+						textMatchCount: matchingResults.summary.textMatchCount,
+						combinedMatchCount:
+							matchingResults.summary.combinedMatchCount,
+						hasImageFeatures:
+							matchingResults.summary.hasImageFeatures,
+						hasTextDescription:
+							matchingResults.summary.hasTextDescription,
+					},
 				},
 			});
 		} catch (error: any) {

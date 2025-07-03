@@ -1,0 +1,37 @@
+### Test Text Matching Service Health
+GET http://localhost:8000/health
+
+### Test Text Comparison - Similar Items
+POST http://localhost:8000/compare_items
+Content-Type: application/json
+
+{
+  "description1": "Lost red iPhone 15 Pro Max with black case, found in downtown area",
+  "description2": "Red Apple iPhone 15 Pro Max in black protective case"
+}
+
+### Test Text Comparison - Different Items
+POST http://localhost:8000/compare_items
+Content-Type: application/json
+
+{
+  "description1": "Lost red iPhone 15 Pro Max with black case",
+  "description2": "Found blue Samsung Galaxy S24 with clear case"
+}
+
+### Test Text Comparison - Empty Descriptions
+POST http://localhost:8000/compare_items
+Content-Type: application/json
+
+{
+  "description1": "",
+  "description2": "Lost wallet with brown leather"
+}
+
+### Test Text Comparison - Invalid Request (Missing Field)
+POST http://localhost:8000/compare_items
+Content-Type: application/json
+
+{
+  "description1": "Lost red iPhone"
+}

@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { FoundReportService } from "../services/foundReport.service";
 import { MatchCRUDService } from "../services/matchCRUD.service";
+import { MatchingService } from "../services/matching.service";
+import { ImageMatchingService } from "../services/imageMatching.service";
+import { TextMatchingService } from "../services/textMatching.service";
+import logger from "../config/logging.config";
 
 interface AuthRequest extends Request {
 	user?: { id: string };
@@ -46,6 +50,7 @@ export const createFoundReportController = async (
 			}
 		}
 
+		// Create the found report
 		const report = await FoundReportService.createFoundReportWithImage({
 			finder,
 			itemDetails: parsedItemDetails,
@@ -54,9 +59,116 @@ export const createFoundReportController = async (
 			foundDate: new Date(foundDate),
 			foundLocation,
 		});
-		res.status(201).json(report);
+
+		// After creating the report, perform searches
+		try {
+			logger.info(
+				`Performing searches for found report ${(
+					report._id as any
+				).toString()}`
+			);
+
+			// Get all matches using the unified service
+			const allMatches = await MatchingService.findMatchesForFoundReport(
+				(report._id as any).toString()
+			);
+
+			// Extract the three independent result sets
+			const imageMatches = allMatches.imageMatches;
+			const textMatches = allMatches.textMatches;
+			const combinedMatches = allMatches.combinedMatches;
+
+			// Format the matches in a frontend-friendly way
+			const formattedImageMatches = imageMatches.map((match) => ({
+				id: `image_result_${match.id}`,
+				matchingScore: Math.round(match.similarity_score * 100),
+				source: "Image Analysis",
+				lostItem: match.document,
+				foundItem: report,
+			}));
+
+			const formattedTextMatches = textMatches.map((match) => ({
+				id: `text_result_${match.id}`,
+				matchingScore: Math.round(match.similarity_score * 100),
+				source: "Text Analysis",
+				lostItem: match.document,
+				foundItem: report,
+			}));
+
+			const formattedCombinedMatches = combinedMatches.map((match) => ({
+				id: `combined_result_${match.id}`,
+				matchingScore: Math.round(match.similarity_score * 100),
+				source: "Combined Analysis",
+				lostItem: match.document,
+				foundItem: report,
+			}));
+
+			// Return the report with search results, formatted for the frontend
+			res.status(201).json({
+				status: "success",
+				data: report,
+				foundReportId: (report._id as any).toString(),
+				itemName: report.itemDetails?.name || "Found Item",
+				description: report.itemDetails?.description || "",
+				category: report.itemDetails?.category || "",
+				// Three independent result sets (consistent with matching endpoint)
+				imageMatches: formattedImageMatches,
+				textMatches: formattedTextMatches,
+				combinedMatches: formattedCombinedMatches,
+				// Summary information
+				summary: {
+					imageMatchCount: allMatches.summary.imageMatchCount,
+					textMatchCount: allMatches.summary.textMatchCount,
+					combinedMatchCount: allMatches.summary.combinedMatchCount,
+					hasImageFeatures: allMatches.summary.hasImageFeatures,
+					hasTextDescription: allMatches.summary.hasTextDescription,
+				},
+				// Legacy support
+				searchResults: {
+					text: formattedTextMatches,
+					image: formattedImageMatches,
+					combined: formattedCombinedMatches,
+				},
+			});
+		} catch (searchErr) {
+			logger.error(`Error performing searches: ${searchErr}`);
+			// Still return success for the report creation, with empty search results
+			res.status(201).json({
+				status: "success",
+				data: report,
+				foundReportId: (report._id as any).toString(),
+				itemName: report.itemDetails?.name || "Found Item",
+				description: report.itemDetails?.description || "",
+				category: report.itemDetails?.category || "",
+				// Three independent result sets (empty due to error)
+				imageMatches: [],
+				textMatches: [],
+				combinedMatches: [],
+				// Summary information (empty due to error)
+				summary: {
+					imageMatchCount: 0,
+					textMatchCount: 0,
+					combinedMatchCount: 0,
+					hasImageFeatures: false,
+					hasTextDescription: false,
+				},
+				// Legacy support
+				searchResults: {
+					text: [],
+					image: [],
+					combined: [],
+				},
+			});
+		}
 	} catch (err) {
-		next(err);
+		console.error("Error creating found report:", err);
+		res.status(500).json({
+			status: "error",
+			message:
+				err instanceof Error
+					? err.message
+					: "Failed to create found report",
+		});
 	}
 };
 

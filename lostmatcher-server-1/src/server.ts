@@ -8,6 +8,7 @@ import logger from "./config/logging.config";
 import { RealTimeNotificationService } from "./services/realTimeNotification.service";
 import { PeriodicSearchService } from "./services/periodicSearch.service";
 import { MatchNotificationService } from "./services/matchNotification.service";
+import { TextMatchingService } from "./services/textMatching.service";
 // import { socketService } from './services/socket.services.js';
 
 let httpServer: ReturnType<typeof createServer>;
@@ -41,6 +42,9 @@ const setupServer = async () => {
 
 		// Initialize notification services
 		await MatchNotificationService.initialize();
+
+		// Initialize text matching service
+		await TextMatchingService.initialize();
 
 		// Start periodic search service (runs every 6 hours by default)
 		PeriodicSearchService.start();

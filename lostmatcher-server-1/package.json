@@ -7,7 +7,8 @@
     "test": "npm test",
     "start": "npm install && node build/server.js",
     "dev": "nodemon src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start:text-model": "cd ../lostmatch-model-server && \"C:/Users/GENIUS ELECTRONICS/Documents/Project Space/lostMatcher/.venv/Scripts/python.exe\" api_service.py"
   },
   "repository": {
     "type": "git",

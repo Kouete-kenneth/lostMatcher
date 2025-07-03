@@ -86,24 +86,16 @@ const AddTab = () => {
 		console.log("Item report data:", data);
 		console.log("Current screen:", currentScreen);
 
-		// If it's a lost item report, navigate to search results
+		// Instead of handling API calls here, redirect to the proper dedicated screens
+		// that have the validated API handling and MongoDB ObjectId validation
 		if (currentScreen === "reportLost") {
-			console.log("Navigating to search results...");
-			router.push({
-				pathname: "/search-results",
-				params: {
-					lostItemId: data.id || `lost_${Date.now()}`,
-					itemName: data.name || "Your Lost Item",
-					// Pass other relevant data for the search
-					description: data.description,
-					category: data.category,
-					image: data.image,
-				},
-			});
-			console.log("Navigation completed");
+			console.log("Redirecting to dedicated ReportLostScreen...");
+			router.push("/report-lost");
+		} else if (currentScreen === "reportFound") {
+			console.log("Redirecting to dedicated ReportFoundScreen...");
+			router.push("/report-found");
 		} else {
-			// For found items and register items, stay on current screen
-			// Could show a success message or navigate to a different screen
+			// For register items, stay on current screen
 			console.log("Completed:", currentScreen);
 		}
 	};

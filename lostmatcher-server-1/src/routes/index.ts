@@ -13,6 +13,7 @@ import foundReportRoutes from "./foundReport.route";
 import lostReportRoutes from "./lostReport.route";
 import matchRecordsRoutes from "./matchRecords.route";
 import manualMatchingRoutes from "./manualMatching.route";
+import matchingRoutes from "./matching.route"; // Added missing matching routes
 import testRoutes from "./test.route";
 import periodicSearchRoutes from "./periodicSearch.route";
 
@@ -54,6 +55,10 @@ const defaultRoutes = [
 	{
 		path: "/match-records",
 		route: matchRecordsRoutes,
+	},
+	{
+		path: "/matching",
+		route: matchingRoutes,
 	},
 	{
 		path: "/manual-matching",

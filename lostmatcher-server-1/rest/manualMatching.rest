@@ -1,11 +1,47 @@
 ### Manually trigger matching for a lost report
-POST http://localhost:5001/api-v1/manual-matching/lost-report/68650a7da7c540af1eb2e413
+POST http://localhost:5001/api-v1/manual-matching/lost-report/667f8a5e123456789abcdef0
 Content-Type: application/json
+
+### Expected Response:
+### {
+###   "success": true,
+###   "message": "Matching completed successfully",
+###   "data": {
+###     "lostReportId": "667f8a5e123456789abcdef0",
+###     "matchesFound": 5,
+###     "matches": [...],     // Combined matches (fusion of image + text)
+###     "summary": {
+###       "imageMatchCount": 3,
+###       "textMatchCount": 4,
+###       "combinedMatchCount": 5,
+###       "hasImageFeatures": true,
+###       "hasTextDescription": true
+###     }
+###   }
+### }
 
 ###
 
 ### Manually trigger matching for a found report
-POST http://localhost:5001/api-v1/manual-matching/found-report/507f1f77bcf86cd799439012
+POST http://localhost:5001/api-v1/manual-matching/found-report/667f8b1e987654321fedcba0
 Content-Type: application/json
+
+### Expected Response:
+### {
+###   "success": true,
+###   "message": "Matching completed successfully", 
+###   "data": {
+###     "foundReportId": "667f8b1e987654321fedcba0",
+###     "matchesFound": 3,
+###     "matches": [...],     // Combined matches (fusion of image + text)
+###     "summary": {
+###       "imageMatchCount": 2,
+###       "textMatchCount": 3, 
+###       "combinedMatchCount": 3,
+###       "hasImageFeatures": true,
+###       "hasTextDescription": true
+###     }
+###   }
+### }
 
 ###

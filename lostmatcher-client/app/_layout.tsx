@@ -18,6 +18,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import OnboardingHeaderNW from "../components/atoms/OnboardingHeaderNW";
+import ProtectedRoute from "@/components/templates/ProtectedRoute";
 
 function RootLayoutNav() {
 	const colorScheme = useColorScheme();
@@ -155,7 +156,9 @@ export default function RootLayout() {
 		<SafeAreaProvider>
 			<AuthProvider>
 				<NotificationProvider>
-					<RootLayoutNav />
+					<ProtectedRoute>
+						<RootLayoutNav />
+					</ProtectedRoute>
 				</NotificationProvider>
 			</AuthProvider>
 		</SafeAreaProvider>

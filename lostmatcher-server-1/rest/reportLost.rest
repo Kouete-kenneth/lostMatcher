@@ -1,6 +1,7 @@
+### Create a new lost report with automatic matching
 POST http://localhost:5001/api-v1/lost
 Content-Type: multipart/form-data; boundary=boundary
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0NTcyNDgsImV4cCI6MTc1MTQ1OTA0OCwidHlwZSI6ImFjY2VzcyJ9.UkKZB4XDRpKrcwQ8g0FBM1ojNgJHJfyynG5R5GcgBy0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0NzkzMTcsImV4cCI6MTc1MTQ4MTExNywidHlwZSI6ImFjY2VzcyJ9.fXqFjLQDJ5sOeA2_4NWX7jQbLIZEcuvVKSFkkxDmNKU
 
 --boundary
 Content-Disposition: form-data; name="file"; filename="image4.jpg"
@@ -18,7 +19,7 @@ Blue jacket
 --boundary
 Content-Disposition: form-data; name="itemDetails[description]"
 
-Found at Central Park on March 15th
+Lost at Central Park on March 15th
 --boundary
 Content-Disposition: form-data; name="itemDetails[category]"
 
@@ -40,3 +41,63 @@ Content-Disposition: form-data; name="status"
 
 lost
 --boundary--
+
+### Expected Response - Lost Report Creation with Three Result Sets:
+### {
+###   "status": "success",
+###   "data": { /* lost report object */ },
+###   "lostReportId": "667f8a5e123456789abcdef0",
+###   "imageMatches": [...],     // Image-only matching results
+###   "textMatches": [...],      // Text-only matching results  
+###   "combinedMatches": [...],  // Fused/combined results
+###   "summary": {
+###     "imageMatchCount": 5,
+###     "textMatchCount": 3,
+###     "combinedMatchCount": 7,
+###     "hasImageFeatures": true,
+###     "hasTextDescription": true
+###   }
+### }
+
+### Match for Lost Report - Returns 3 Independent Result Sets
+GET http://localhost:5001/api-v1/matching/lost/667f8a5e123456789abcdef0
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0ODM2NDQsImV4cCI6MTc1MTQ4NTQ0NCwidHlwZSI6ImFjY2VzcyJ9.19fpIoeEHqLjZLFbU-q1p3nmgjccosQ8tOwuHHxE4kk
+
+### Expected Response Structure:
+### {
+###   "lostReportId": "667f8a5e123456789abcdef0",
+###   "imageMatches": [...],     // Image-only matching results
+###   "textMatches": [...],      // Text-only matching results  
+###   "combinedMatches": [...],  // Fused/combined results
+###   "summary": {
+###     "imageMatchCount": 5,
+###     "textMatchCount": 3,
+###     "combinedMatchCount": 7,
+###     "hasImageFeatures": true,
+###     "hasTextDescription": true
+###   }
+### }
+
+### Manual Trigger Matching for Lost Report
+POST http://localhost:5001/api-v1/manual-matching/lost/667f8a5e123456789abcdef0
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0ODM2NDQsImV4cCI6MTc1MTQ4NTQ0NCwidHlwZSI6ImFjY2VzcyJ9.19fpIoeEHqLjZLFbU-q1p3nmgjccosQ8tOwuHHxE4kk
+
+### Expected Response Structure for Manual Matching:
+### {
+###   "success": true,
+###   "message": "Matching completed successfully",
+###   "data": {
+###     "lostReportId": "667f8a5e123456789abcdef0",
+###     "matchesFound": 7,
+###     "matches": [...],        // Combined matches for manual review
+###     "summary": {
+###       "imageMatchCount": 5,
+###       "textMatchCount": 3,
+###       "combinedMatchCount": 7,
+###       "hasImageFeatures": true,
+###       "hasTextDescription": true
+###     }
+###   }
+### }

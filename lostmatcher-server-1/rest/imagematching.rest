@@ -1,0 +1,24 @@
+### match for lost report - returns 3 independent result sets
+GET http://localhost:5001/api-v1/matching/lost/667f8a5e123456789abcdef0
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0ODM2NDQsImV4cCI6MTc1MTQ4NTQ0NCwidHlwZSI6ImFjY2VzcyJ9.19fpIoeEHqLjZLFbU-q1p3nmgjccosQ8tOwuHHxE4kk
+
+### Expected Response Structure:
+### {
+###   "lostReportId": "667f8a5e123456789abcdef0",
+###   "imageMatches": [...],     // Image-only matching results
+###   "textMatches": [...],      // Text-only matching results  
+###   "combinedMatches": [...],  // Fused/combined results
+###   "summary": {
+###     "imageMatchCount": 5,
+###     "textMatchCount": 3,
+###     "combinedMatchCount": 7,
+###     "hasImageFeatures": true,
+###     "hasTextDescription": true
+###   }
+### }
+
+### match for found report - returns 3 independent result sets
+GET http://localhost:5001/api-v1/matching/found/667f8b1e987654321fedcba0
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODUzZmViNjY1OGJhYTc3N2M5MGFjZDMiLCJpYXQiOjE3NTE0ODEzNzAsImV4cCI6MTc1MTQ4MzE3MCwidHlwZSI6ImFjY2VzcyJ9.b88PQzWkAF33-XMm2eRvIidqN7Dez7jpG8CyVDrTY9Y

@@ -46,6 +46,13 @@ export const createLostReportController = async (
 			}
 		}
 
+		console.log("Creating lost report with data:", {
+			reporter,
+			itemDetails: parsedItemDetails,
+			lostDate,
+			lostLocation,
+		});
+
 		const report = await LostReportService.createLostReportWithImage({
 			reporter,
 			itemDetails: parsedItemDetails,
@@ -54,9 +61,28 @@ export const createLostReportController = async (
 			lostDate: new Date(lostDate),
 			lostLocation,
 		});
-		res.status(201).json(report);
+
+		console.log("Lost report created successfully:", report._id);
+
+		// Return formatted response with the created report
+		res.status(201).json({
+			status: "success",
+			data: report,
+			// Include the ID and other fields needed by the frontend
+			lostItemId: (report._id as any).toString(),
+			itemName: parsedItemDetails?.name || "Unknown Item",
+			description: parsedItemDetails?.description || "",
+			category: parsedItemDetails?.category || "",
+		});
 	} catch (err) {
-		next(err);
+		console.error("Error creating lost report:", err);
+		res.status(500).json({
+			status: "error",
+			message:
+				err instanceof Error
+					? err.message
+					: "Failed to create lost report",
+		});
 	}
 };
 

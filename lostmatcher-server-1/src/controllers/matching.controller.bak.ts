@@ -21,16 +21,6 @@ export const findMatchesForLostReportController = async (
 			return;
 		}
 
-		// Validate that the ID is a valid MongoDB ObjectId
-		if (!mongoose.Types.ObjectId.isValid(id)) {
-			console.log(`Invalid MongoDB ObjectId format: ${id}`);
-			res.status(400).json({
-				status: "error",
-				message: `Invalid lost report ID format. Expected a valid MongoDB ObjectId, got: ${id}`,
-			});
-			return;
-		}
-
 		// Try to find the lost report first to verify it exists
 		const LostReport = mongoose.model("LostReport");
 		try {
@@ -71,53 +61,31 @@ export const findMatchesForLostReportController = async (
 			return;
 		}
 
-		const matchingResults = await MatchingService.findMatchesForLostReport(
-			id
-		);
+		const matches = await MatchingService.findMatchesForLostReport(id);
 		console.log(
-			`Found matches for lost report ID: ${id} - Image(${matchingResults.summary.imageMatchCount}), Text(${matchingResults.summary.textMatchCount}), Combined(${matchingResults.summary.combinedMatchCount})`
+			`Found ${matches.length} matches for lost report ID: ${id}`
 		);
 
-		// Format each set of matches to be consistent with frontend expectations
-		const formatMatches = (matches: any[]) => {
-			return matches.map((match, index) => {
-				return {
-					id: match.id || `match_${index}`,
-					similarity_score: match.similarity_score || 0.5,
-					text_similarity: match.text_similarity || 0,
-					confidence: match.confidence || 0.5,
-					matches_count: match.matches_count || 0,
-					document: match.document || {},
-					foundItem: match.document || {}, // For consistency with frontend expectations
-					lostItem: {
-						id: id,
-						_id: id,
-					},
-				};
-			});
-		};
+		// Format the matches to be consistent with found report matches
+		const formattedMatches = matches.map((match, index) => {
+			return {
+				id: match.id || `match_${index}`,
+				similarity_score: match.similarity_score || 0.5,
+				document: match.document || {},
+				foundItem: match.document || {}, // For consistency with frontend expectations
+				lostItem: {
+					id: id,
+					_id: id,
+				},
+			};
+		});
 
 		res.json({
 			lostReportId: id,
-			// Three independent result sets
-			imageMatches: formatMatches(matchingResults.imageMatches),
-			textMatches: formatMatches(matchingResults.textMatches),
-			combinedMatches: formatMatches(matchingResults.combinedMatches),
-			// Legacy support - combined matches as default
-			matches: formatMatches(matchingResults.combinedMatches),
-			// Summary information
-			summary: {
-				imageMatchCount: matchingResults.summary.imageMatchCount,
-				textMatchCount: matchingResults.summary.textMatchCount,
-				combinedMatchCount: matchingResults.summary.combinedMatchCount,
-				hasImageFeatures: matchingResults.summary.hasImageFeatures,
-				hasTextDescription: matchingResults.summary.hasTextDescription,
-			},
-			// Legacy fields for backward compatibility
-			totalMatches: matchingResults.combinedMatches.length,
-			highConfidenceMatches: MatchingService.getHighConfidenceMatches(
-				matchingResults.combinedMatches
-			).length,
+			matches: formattedMatches,
+			totalMatches: matches.length,
+			highConfidenceMatches:
+				MatchingService.getHighConfidenceMatches(matches).length,
 		});
 	} catch (err) {
 		console.error(
@@ -148,16 +116,6 @@ export const findMatchesForFoundReportController = async (
 			res.status(400).json({
 				status: "error",
 				message: "Found report ID is required",
-			});
-			return;
-		}
-
-		// Validate that the ID is a valid MongoDB ObjectId
-		if (!mongoose.Types.ObjectId.isValid(id)) {
-			console.log(`Invalid MongoDB ObjectId format: ${id}`);
-			res.status(400).json({
-				status: "error",
-				message: `Invalid found report ID format. Expected a valid MongoDB ObjectId, got: ${id}`,
 			});
 			return;
 		}
@@ -201,11 +159,20 @@ export const findMatchesForFoundReportController = async (
 			return;
 		}
 
-		// Get all types of matches using the new unified service
-		console.log(`Retrieving all matches for found report ${id}`);
-		const matchingResults = await MatchingService.findMatchesForFoundReport(
+		// Get all types of matches
+		console.log(`Retrieving image matches for found report ${id}`);
+		const imageMatches = await MatchingService.findMatchesForFoundReport(
 			id
 		);
+
+		console.log(`Retrieving text matches for found report ${id}`);
+		const textMatches = await MatchingService.findTextMatchesForFoundReport(
+			id
+		);
+
+		console.log(`Retrieving combined matches for found report ${id}`);
+		const combinedMatches =
+			await MatchingService.findCombinedMatchesForFoundReport(id);
 
 		// Get the report to include in responses
 		const foundReport = await FoundReport.findById(id);
@@ -218,13 +185,8 @@ export const findMatchesForFoundReportController = async (
 		}
 
 		console.log(
-			`Found matches for report ${id}: Image(${matchingResults.summary.imageMatchCount}), Text(${matchingResults.summary.textMatchCount}), Combined(${matchingResults.summary.combinedMatchCount})`
+			`Found matches for report ${id}: Image: ${imageMatches.length}, Text: ${textMatches.length}, Combined: ${combinedMatches.length}`
 		);
-
-		// Extract the three independent result sets
-		const imageMatches = matchingResults.imageMatches;
-		const textMatches = matchingResults.textMatches;
-		const combinedMatches = matchingResults.combinedMatches;
 
 		// Helper function to safely get finder name and ID
 		const getFinderDetails = (report: any) => {
@@ -249,7 +211,7 @@ export const findMatchesForFoundReportController = async (
 			return report._id ? (report._id as any).toString() : id;
 		};
 
-		// Format the matches in a frontend-friendly way with essential details only
+		// Format the matches in a frontend-friendly way with rich details
 		const formattedImageMatches = imageMatches.map((match, index) => ({
 			id: `image_result_${match.id || index}`,
 			matchingScore: Math.round((match.similarity_score || 0.5) * 100),
@@ -268,11 +230,13 @@ export const findMatchesForFoundReportController = async (
 							.split("T")[0]
 					: "Unknown",
 				location: match.document?.lostLocation || "Unknown location",
-				image: match.document?.image?.url || "", // Only the image URL
+				image: match.document?.image?.url || "",
+				attributes: match.document?.attributes || {},
 				owner: {
 					name: match.document?.reporter?.name || "Anonymous",
 					id: match.document?.reporter?._id || "unknown",
 				},
+				...match.document,
 			},
 			foundItem: {
 				id: getReportId(foundReport),
@@ -287,7 +251,8 @@ export const findMatchesForFoundReportController = async (
 							.split("T")[0]
 					: "Unknown",
 				location: foundReport.foundLocation || "Unknown location",
-				image: foundReport.image?.url || "", // Only the image URL
+				image: foundReport.image?.url || "",
+				attributes: foundReport.attributes || {},
 				finder: getFinderDetails(foundReport),
 			},
 		}));
@@ -310,11 +275,13 @@ export const findMatchesForFoundReportController = async (
 							.split("T")[0]
 					: "Unknown",
 				location: match.document?.lostLocation || "Unknown location",
-				image: match.document?.image?.url || "", // Only the image URL
+				image: match.document?.image?.url || "",
+				attributes: match.document?.attributes || {},
 				owner: {
 					name: match.document?.reporter?.name || "Anonymous",
 					id: match.document?.reporter?._id || "unknown",
 				},
+				...match.document,
 			},
 			foundItem: {
 				id: getReportId(foundReport),
@@ -329,7 +296,8 @@ export const findMatchesForFoundReportController = async (
 							.split("T")[0]
 					: "Unknown",
 				location: foundReport.foundLocation || "Unknown location",
-				image: foundReport.image?.url || "", // Only the image URL
+				image: foundReport.image?.url || "",
+				attributes: foundReport.attributes || {},
 				finder: getFinderDetails(foundReport),
 			},
 		}));
@@ -357,11 +325,13 @@ export const findMatchesForFoundReportController = async (
 						: "Unknown",
 					location:
 						match.document?.lostLocation || "Unknown location",
-					image: match.document?.image?.url || "", // Only the image URL
+					image: match.document?.image?.url || "",
+					attributes: match.document?.attributes || {},
 					owner: {
 						name: match.document?.reporter?.name || "Anonymous",
 						id: match.document?.reporter?._id || "unknown",
 					},
+					...match.document,
 				},
 				foundItem: {
 					id: getReportId(foundReport),
@@ -377,37 +347,26 @@ export const findMatchesForFoundReportController = async (
 								.split("T")[0]
 						: "Unknown",
 					location: foundReport.foundLocation || "Unknown location",
-					image: foundReport.image?.url || "", // Only the image URL
+					image: foundReport.image?.url || "",
+					attributes: foundReport.attributes || {},
 					finder: getFinderDetails(foundReport),
 				},
 			})
 		);
 
-		// Prepare the frontend-friendly response with three independent result sets
+		// Prepare the frontend-friendly response
 		const response = {
 			foundReportId: id,
-			// Three independent result sets (consistent with lost report endpoint)
-			imageMatches: formattedImageMatches,
-			textMatches: formattedTextMatches,
-			combinedMatches: formattedCombinedMatches,
-			// Legacy support - combined matches as default
-			matches: formattedCombinedMatches,
-			// Summary information
-			summary: {
-				imageMatchCount: matchingResults.summary.imageMatchCount,
-				textMatchCount: matchingResults.summary.textMatchCount,
-				combinedMatchCount: matchingResults.summary.combinedMatchCount,
-				hasImageFeatures: matchingResults.summary.hasImageFeatures,
-				hasTextDescription: matchingResults.summary.hasTextDescription,
-			},
-			// Legacy fields for backward compatibility
 			itemName: foundReport.itemDetails?.name || "Found item",
-			totalMatches: matchingResults.summary.combinedMatchCount,
 			searchResults: {
 				text: formattedTextMatches,
 				image: formattedImageMatches,
 				combined: formattedCombinedMatches,
 			},
+			totalMatches:
+				formattedTextMatches.length +
+				formattedImageMatches.length +
+				formattedCombinedMatches.length,
 		};
 
 		res.json(response);

@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import ScreenTemplateNW from "@/components/templates/ScreenTemplateNW";
 import { SearchTabsNW, BottomTabBarNW } from "@/components/molecules";
 import { SearchResultsContentNW, ClaimModalNW } from "@/components/organisms";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 
 // Define search result type
 export type SearchResult = {
@@ -27,7 +27,7 @@ const SearchResultsScreen = () => {
 	const searchResultsParam = params.searchResults as string;
 
 	const [activeTab, setActiveTab] = useState<"text" | "image" | "combined">(
-		"text"
+		"combined"
 	);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentResultIndex, setCurrentResultIndex] = useState(0);
@@ -49,57 +49,6 @@ const SearchResultsScreen = () => {
 	useEffect(() => {
 		const loadSearchResults = async () => {
 			setIsLoading(true);
-
-			// Validate that we have a proper MongoDB ObjectId before proceeding
-			if (lostItemId) {
-				// Validate MongoDB ObjectId format (24 character hex string)
-				if (
-					typeof lostItemId !== "string" ||
-					lostItemId.length !== 24 ||
-					!/^[0-9a-fA-F]{24}$/.test(lostItemId)
-				) {
-					console.error(
-						"Invalid MongoDB ObjectId for lost item:",
-						lostItemId
-					);
-					Alert.alert(
-						"Invalid Item ID",
-						"The item ID is invalid. Please report the item again.",
-						[{ text: "Go Back", onPress: () => router.back() }]
-					);
-					setIsLoading(false);
-					return;
-				}
-			} else if (foundItemId) {
-				// Validate MongoDB ObjectId format (24 character hex string)
-				if (
-					typeof foundItemId !== "string" ||
-					foundItemId.length !== 24 ||
-					!/^[0-9a-fA-F]{24}$/.test(foundItemId)
-				) {
-					console.error(
-						"Invalid MongoDB ObjectId for found item:",
-						foundItemId
-					);
-					Alert.alert(
-						"Invalid Item ID",
-						"The item ID is invalid. Please report the item again.",
-						[{ text: "Go Back", onPress: () => router.back() }]
-					);
-					setIsLoading(false);
-					return;
-				}
-			} else {
-				// No valid ID provided
-				console.error("No valid item ID provided");
-				Alert.alert(
-					"Missing Item ID",
-					"No item ID was provided. Please report the item again.",
-					[{ text: "Go Back", onPress: () => router.back() }]
-				);
-				setIsLoading(false);
-				return;
-			}
 
 			try {
 				let results: {
@@ -154,6 +103,25 @@ const SearchResultsScreen = () => {
 					results.combined.length === 0
 				) {
 					if (lostItemId) {
+						// Validate that we have a proper MongoDB ObjectId
+						if (!lostItemId || lostItemId.length !== 24) {
+							console.error(
+								"Invalid MongoDB ObjectId for lost item:",
+								lostItemId
+							);
+							Alert.alert(
+								"Error",
+								"Invalid item ID. Please try creating your report again.",
+								[
+									{
+										text: "Go Back",
+										onPress: () => router.back(),
+									},
+								]
+							);
+							return;
+						}
+
 						// Fetch results for lost item
 						console.log(
 							"Fetching search results for lost item:",
@@ -171,56 +139,41 @@ const SearchResultsScreen = () => {
 								response
 							);
 
-							// Check for the new three-result-sets format first
+							// Check for response data based on the backend's structure
+							const matchesArray =
+								response?.matches ||
+								response?.data?.matches ||
+								[];
+
 							if (
 								response &&
-								response.imageMatches &&
-								response.textMatches &&
-								response.combinedMatches
+								Array.isArray(matchesArray) &&
+								matchesArray.length > 0
 							) {
-								// Use the new consistent format
-								results = {
-									text: Array.isArray(response.textMatches)
-										? response.textMatches
-										: [],
-									image: Array.isArray(response.imageMatches)
-										? response.imageMatches
-										: [],
-									combined: Array.isArray(
-										response.combinedMatches
-									)
-										? response.combinedMatches
-										: [],
-								};
-								console.log(
-									"Using new three-result-sets format for lost item"
-								);
-							} else if (
-								response &&
-								Array.isArray(response.matches)
-							) {
-								// Fallback to legacy format if new format not available
-								console.log(
-									"Using legacy format for lost item"
-								);
+								// Backend response for lost item has different format than found item
+								// We need to convert it to the same tab-based format
 								try {
 									const formattedMatches: SearchResult[] = [];
 
+									// Process each match
 									for (
 										let i = 0;
-										i < response.matches.length;
+										i < matchesArray.length;
 										i++
 									) {
-										const match = response.matches[i];
+										const match = matchesArray[i];
 										if (!match) continue;
 
+										// Get the match score
 										const score =
 											typeof match.similarity_score ===
 											"number"
 												? match.similarity_score
 												: 0.5;
 
+										// Safely extract lostItem or fallback to empty object
 										const lostItem = match.lostItem || {};
+										// Safely extract foundItem or document or fallback to empty object
 										const foundItem =
 											match.document ||
 											match.foundItem ||
@@ -327,24 +280,31 @@ const SearchResultsScreen = () => {
 								"Error fetching matches for lost item:",
 								error
 							);
-
-							// Handle 404 errors gracefully
-							if (
-								(error as any)?.status === 404 ||
-								(error as Error)?.message?.includes("404")
-							) {
-								console.log(
-									"No matches found for this lost item."
-								);
-								// No matches found - keep results empty
-							} else {
-								Alert.alert(
-									"Error",
-									"Failed to fetch matching results"
-								);
-							}
+							Alert.alert(
+								"Error",
+								"Failed to fetch matching results. Please try again later."
+							);
 						}
 					} else if (foundItemId) {
+						// Validate that we have a proper MongoDB ObjectId
+						if (!foundItemId || foundItemId.length !== 24) {
+							console.error(
+								"Invalid MongoDB ObjectId for found item:",
+								foundItemId
+							);
+							Alert.alert(
+								"Error",
+								"Invalid item ID. Please try creating your report again.",
+								[
+									{
+										text: "Go Back",
+										onPress: () => router.back(),
+									},
+								]
+							);
+							return;
+						}
+
 						// Fetch results for found item
 						console.log(
 							"Fetching search results for found item:",
@@ -362,31 +322,8 @@ const SearchResultsScreen = () => {
 								response
 							);
 
-							// Check for the new three-result-sets format first
+							// Validate the structure of the response
 							if (
-								response &&
-								response.imageMatches &&
-								response.textMatches &&
-								response.combinedMatches
-							) {
-								// Use the new consistent format
-								results = {
-									text: Array.isArray(response.textMatches)
-										? response.textMatches
-										: [],
-									image: Array.isArray(response.imageMatches)
-										? response.imageMatches
-										: [],
-									combined: Array.isArray(
-										response.combinedMatches
-									)
-										? response.combinedMatches
-										: [],
-								};
-								console.log(
-									"Using new three-result-sets format for found item"
-								);
-							} else if (
 								response &&
 								(response.searchResults ||
 									response.data?.searchResults) &&
@@ -395,10 +332,7 @@ const SearchResultsScreen = () => {
 									response.data?.searchResults
 								) === "object"
 							) {
-								// Fallback to legacy found item format
-								console.log(
-									"Using legacy format for found item"
-								);
+								// Ensure each category is an array
 								const searchResults =
 									response.searchResults ||
 									response.data?.searchResults ||
@@ -433,34 +367,39 @@ const SearchResultsScreen = () => {
 								"Error fetching matches for found item:",
 								error
 							);
-
-							// Handle 404 errors gracefully
-							if (
-								(error as any)?.status === 404 ||
-								(error as Error)?.message?.includes("404")
-							) {
-								console.log(
-									"No matches found for this found item."
-								);
-								// No matches found - keep results empty
-							} else {
-								Alert.alert(
-									"Error",
-									"Failed to fetch matching results"
-								);
-							}
+							Alert.alert(
+								"Error",
+								"Failed to fetch matching results. Please try again later."
+							);
 						}
 					}
 				}
 
-				// If we have no results from server, keep results empty
+				// If we still have no results, show appropriate message
 				if (
 					results.text.length === 0 &&
 					results.image.length === 0 &&
 					results.combined.length === 0
 				) {
 					console.log("No matching results found from the server");
-					// Keep empty results - no dummy data
+
+					// Show message to user about no results
+					Alert.alert(
+						"No Matches Found",
+						"We couldn't find any matching items at this time. Please try again later or check if your item has been reported.",
+						[
+							{
+								text: "Go Back",
+								onPress: () => router.back(),
+							},
+							{
+								text: "Stay",
+								style: "cancel",
+							},
+						]
+					);
+
+					// Keep empty results
 					results = {
 						text: [],
 						image: [],

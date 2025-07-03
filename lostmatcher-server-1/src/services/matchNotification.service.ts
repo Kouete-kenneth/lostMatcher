@@ -217,22 +217,16 @@ export class MatchNotificationService {
 			);
 
 			const notificationBody = {
-				userId: user._id,
+				recipients: [user._id], // Use 'recipients' array as required by model
 				title: `🎯 ${matchCount} potential match${
 					matchCount > 1 ? "es" : ""
 				} found!`,
-				message: `We found ${matchCount} potential match${
+				content: `We found ${matchCount} potential match${
 					matchCount > 1 ? "es" : ""
-				} for your ${reportType} report. Best match: ${topSimilarity}% similarity.`,
-				type: "match_found",
-				isRead: false,
-				actionUrl: `/matches/${lostReportId}`,
-				metadata: {
-					reportId: lostReportId,
-					reportType,
-					matchCount,
-					topSimilarity,
-				},
+				} for your ${reportType} report. Best match: ${topSimilarity}% similarity.`, // Use 'content' instead of 'message'
+				type: "match", // Use valid enum value from NotificationType
+				link: `/matches/${lostReportId}`, // Use 'link' instead of 'actionUrl'
+				// Remove fields not in the model schema
 			};
 
 			await createNotification(notificationBody);

@@ -29,7 +29,7 @@ export default function SearchResultsContentNW({
 		return <LoadingStateNW searchType={searchType} />;
 	}
 
-	if (results.length === 0) {
+	if (!results || results.length === 0) {
 		const getEmptyMessage = () => {
 			switch (searchType) {
 				case "text":
@@ -54,21 +54,32 @@ export default function SearchResultsContentNW({
 
 	const currentResult = results[currentResultIndex];
 
+	if (!currentResult) {
+		return (
+			<EmptyStateNW
+				icon="alert-circle"
+				title="Invalid Result"
+				description="There was an error displaying this search result."
+			/>
+		);
+	}
+
+	// Safely access nested properties
+	const lostItem = currentResult.lostItem || {};
+	const foundItem = currentResult.foundItem || {};
+
 	return (
 		<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
 			{/* Matching Score Section */}
 			<MatchScoreNW
-				score={currentResult.matchingScore}
-				source={currentResult.source}
+				score={currentResult.matchingScore || 0}
+				source={currentResult.source || "Analysis"}
 				currentMatch={currentResultIndex + 1}
 				totalMatches={results.length}
 			/>
 
 			{/* Items Comparison */}
-			<ItemComparisonNW
-				lostItem={currentResult.lostItem}
-				foundItem={currentResult.foundItem}
-			/>
+			<ItemComparisonNW lostItem={lostItem} foundItem={foundItem} />
 		</ScrollView>
 	);
 }

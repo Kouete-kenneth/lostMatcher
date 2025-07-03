@@ -1,11 +1,22 @@
 {
-  "extends": "expo/tsconfig.base",
-
-    
   "compilerOptions": {
+    "target": "es2017",
+    "lib": [
+      "es6"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
     "jsxImportSource": "nativewind",
-    "strict": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@/*": [
         "./*"
@@ -17,6 +28,8 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
-, "babel.config.js"  ]
+    "nativewind-env.d.ts",
+    "babel.config.js"
+  ],
+  "extends": "expo/tsconfig.base"
 }

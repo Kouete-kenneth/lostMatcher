@@ -41,19 +41,43 @@ async function request(path: string, options: any = {}, isFormData = false) {
 	if (token) headers["Authorization"] = `Bearer ${token}`;
 	if (!isFormData) headers["Content-Type"] = "application/json";
 
+	console.log(`API Request to ${path}:`, {
+		method: options.method || "GET",
+		isFormData,
+		hasToken: !!token,
+	});
+
 	try {
 		const response = await axiosInstance.request({
 			url: path,
 			method: options.method || "GET",
 			data: options.body,
 			headers,
+			timeout: 30000, // 30 seconds timeout for image processing
 			// For FormData, let axios set the Content-Type
 		});
+		console.log(`API Response from ${path}:`, response.status);
 		return response.data;
 	} catch (error: any) {
+		console.error(`API Error for ${path}:`, error);
+
 		if (error.isAxiosError === true) {
 			const status = error.response?.status || 500;
 			const data = error.response?.data;
+
+			// Log detailed error info
+			console.error("API Error details:", {
+				status,
+				data,
+				message: error.message,
+				url: path,
+				method: options.method || "GET",
+			});
+
+			// For 404 Not Found errors, throw a more specific error
+			if (status === 404) {
+				throw new ApiError(data?.message || "Not found", 404, data);
+			}
 
 			// Use utility function to extract clean error message
 			const message = extractErrorMessage(data || error);
@@ -64,6 +88,7 @@ async function request(path: string, options: any = {}, isFormData = false) {
 			throw new ApiError(message, status, safeError);
 		} else {
 			const message = extractErrorMessage(error);
+			console.error("Non-Axios error:", message);
 			throw new ApiError(message, 500);
 		}
 	}
@@ -158,36 +183,7 @@ export const api = {
 		});
 	},
 
-	// Found Reports
-	async createFoundReport(formData: FormData) {
-		return request(
-			"/found",
-			{
-				method: "POST",
-				body: formData,
-			},
-			true
-		);
-	},
-	async getAllFoundReports() {
-		return request("/found");
-	},
-	async getFoundReportById(id: string) {
-		return request(`/found/${id}`);
-	},
-	async updateFoundReport(id: string, body: any) {
-		return request(`/found/${id}`, {
-			method: "PUT",
-			body: body,
-		});
-	},
-	async deleteFoundReport(id: string) {
-		return request(`/found/${id}`, {
-			method: "DELETE",
-		});
-	},
-
-	// Lost Reports
+	// Lost item report methods
 	async createLostReport(formData: FormData) {
 		return request(
 			"/lost",
@@ -196,24 +192,103 @@ export const api = {
 				body: formData,
 			},
 			true
-		);
+		); // true for FormData
 	},
+
 	async getAllLostReports() {
 		return request("/lost");
 	},
+
 	async getLostReportById(id: string) {
 		return request(`/lost/${id}`);
 	},
+
 	async updateLostReport(id: string, body: any) {
 		return request(`/lost/${id}`, {
 			method: "PUT",
 			body: body,
 		});
 	},
+
 	async deleteLostReport(id: string) {
 		return request(`/lost/${id}`, {
 			method: "DELETE",
 		});
+	},
+
+	// Found item report methods
+	async createFoundReport(formData: FormData) {
+		return request(
+			"/found",
+			{
+				method: "POST",
+				body: formData,
+			},
+			true
+		); // true for FormData
+	},
+
+	async getAllFoundReports() {
+		return request("/found");
+	},
+
+	async getFoundReportById(id: string) {
+		return request(`/found/${id}`);
+	},
+
+	async updateFoundReport(id: string, body: any) {
+		return request(`/found/${id}`, {
+			method: "PUT",
+			body: body,
+		});
+	},
+
+	async deleteFoundReport(id: string) {
+		return request(`/found/${id}`, {
+			method: "DELETE",
+		});
+	},
+
+	// Item registration methods
+	async registerItem(formData: FormData) {
+		return request(
+			"/items/upload",
+			{
+				method: "POST",
+				body: formData,
+			},
+			true
+		); // true for FormData
+	},
+
+	async getAllRegisteredItems() {
+		return request("/items");
+	},
+
+	async getRegisteredItemById(id: string) {
+		return request(`/items/${id}`);
+	},
+
+	async updateRegisteredItem(id: string, body: any) {
+		return request(`/items/${id}`, {
+			method: "PUT",
+			body: body,
+		});
+	},
+
+	async deleteRegisteredItem(id: string) {
+		return request(`/items/${id}`, {
+			method: "DELETE",
+		});
+	},
+
+	// Matching methods
+	async getMatchesForLostReport(id: string) {
+		return request(`/matching/lost/${id}`);
+	},
+
+	async getMatchesForFoundReport(id: string) {
+		return request(`/matching/found/${id}`);
 	},
 };
 

@@ -33,3 +33,21 @@ Content-Type: image/jpeg
 --boundary1--
 
 ###
+
+### Test Server Connectivity - Localhost
+GET http://localhost:5001/api-v1/health
+Content-Type: application/json
+
+###
+
+### Test Server Connectivity - Local IP
+GET http://192.168.43.205:5001/api-v1/health
+Content-Type: application/json
+
+###
+
+### Test Server Connectivity - Alternative IP (Android Emulator)
+GET http://10.0.2.2:5001/api-v1/health
+Content-Type: application/json
+
+###

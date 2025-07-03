@@ -49,5 +49,5 @@ def compare_items():
         return jsonify({"error": f"An error occurred during processing: {e}"}), 500
 
 if __name__ == '__main__':
-    # Use a suitable port, e.g., 8000
-    app.run(host='0.0.0.0', port=8000)
+    # Production configuration
+    app.run(host='0.0.0.0', port=8000, debug=False)
